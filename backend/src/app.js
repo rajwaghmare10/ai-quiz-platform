@@ -9,6 +9,10 @@ const testRoutes = require("./routes/test.routes");
 
 const classRoutes = require("./routes/class.routes");
 
+const quizRoutes = require("./routes/quiz.routes");
+
+const questionRoutes = require("./routes/question.routes");
+
 app.use(cors());
 app.use(express.json());
 
@@ -17,6 +21,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/test", testRoutes);
 
 app.use( "/api/classes", classRoutes);
+
+app.use("/api/quizzes", quizRoutes);
+
+app.use("/api/questions",questionRoutes );
 
 app.get("/health", (req, res) => {
   res.status(200).json({
