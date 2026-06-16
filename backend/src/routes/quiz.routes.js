@@ -20,4 +20,10 @@ router.post(
     quizController.createQuiz
 );
 
+router.get(
+  "/:quizId",
+  authenticate,
+  quizController.getQuizDetails
+);
+
 module.exports = router;

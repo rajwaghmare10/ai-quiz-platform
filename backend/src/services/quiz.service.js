@@ -1,6 +1,7 @@
 
 const classRepository = require("../repositories/class.repository");
 const quizRepository = require("../repositories/quiz.repository");
+const questionRepository = require("../repositories/question.repository");
 
 const createQuiz = async ({
     classId,
@@ -42,6 +43,29 @@ const createQuiz = async ({
         });
 };
 
+const getQuizDetails = async (quizId) => {
+
+  const quiz =
+    await quizRepository.getQuizById(
+      quizId
+    );
+
+  if (!quiz) {
+    throw new Error("Quiz not found");
+  }
+
+  const questions =
+    await questionRepository.getQuestionsByQuizId(
+      quizId
+    );
+
+
+  return {
+    ...quiz,
+    questions
+  };
+};
 module.exports = {
-    createQuiz
+    createQuiz,
+    getQuizDetails
 };

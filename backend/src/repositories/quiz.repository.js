@@ -36,6 +36,41 @@ const createQuiz = async ({
     return result.rows[0];
 };
 
+const updateTotalQuestions = async (
+  quizId,
+  totalQuestions
+) => {
+
+  const query = `
+    UPDATE quizzes
+    SET total_questions = $1
+    WHERE quiz_id = $2
+  `;
+
+  await pool.query(query, [
+    totalQuestions,
+    quizId
+  ]);
+};
+
+const getQuizById = async (quizId) => {
+
+  const query = `
+    SELECT *
+    FROM quizzes
+    WHERE quiz_id = $1
+  `;
+
+  const result = await pool.query(
+    query,
+    [quizId]
+  );
+
+  return result.rows[0];
+};
+
 module.exports = {
-    createQuiz
+    createQuiz,
+    updateTotalQuestions,
+    getQuizById
 };
