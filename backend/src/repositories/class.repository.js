@@ -181,6 +181,26 @@ const findClassById = async (
     return result.rows[0];
 };
 
+const isStudentInClass = async (
+  classId,
+  studentId
+) => {
+
+  const query = `
+    SELECT *
+    FROM class_members
+    WHERE class_id = $1
+    AND student_id = $2
+  `;
+
+  const result = await pool.query(
+    query,
+    [classId, studentId]
+  );
+
+  return result.rows[0];
+};
+
 module.exports = {
     createClass,
     getClassesByTeacherId,
@@ -189,5 +209,6 @@ module.exports = {
     joinClass,
     getJoinedClasses,
     getClassDetails,
-    findClassById
+    findClassById,
+    isStudentInClass
 };
