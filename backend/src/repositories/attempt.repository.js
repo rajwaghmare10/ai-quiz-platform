@@ -53,7 +53,69 @@ const createAttempt = async (
   return result.rows[0];
 };
 
+const getAttemptById = async (
+  attemptId
+) => {
+
+  const query = `
+    SELECT *
+    FROM quiz_attempts
+    WHERE attempt_id = $1
+  `;
+
+  const result = await pool.query(
+    query,
+    [attemptId]
+  );
+
+  return result.rows[0];
+};
+
+const updateAttempt = async (
+  attemptId,
+  score
+) => {
+
+  const query = `
+    UPDATE quiz_attempts
+    SET
+      score = $1,
+      status = 'submitted',
+      submitted_at = NOW()
+    WHERE attempt_id = $2
+    RETURNING *
+  `;
+
+  const result = await pool.query(
+    query,
+    [score, attemptId]
+  );
+
+  return result.rows[0];
+};
+
+const getResultByAttemptId = async (
+  attemptId
+) => {
+
+  const query = `
+    SELECT *
+    FROM quiz_attempts
+    WHERE attempt_id = $1
+  `;
+
+  const result = await pool.query(
+    query,
+    [attemptId]
+  );
+
+  return result.rows[0];
+};
+
 module.exports = {
   findAttemptByQuizAndStudent,
-  createAttempt
+  createAttempt,
+  getAttemptById,
+  updateAttempt,
+  getResultByAttemptId
 };

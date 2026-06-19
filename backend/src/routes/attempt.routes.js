@@ -20,4 +20,17 @@ router.post(
   attemptController.startQuiz
 );
 
+router.post(
+  "/:attemptId/submit",
+  authenticate,
+  authorize("student"),
+  attemptController.submitQuiz
+);
+
+router.get(
+  "/:attemptId/result",
+  authenticate,
+  attemptController.getResult
+);
+
 module.exports = router;
