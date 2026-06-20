@@ -87,8 +87,79 @@ const getResult = async (
 
 };
 
+const getQuizAttempts = async (
+  req,
+  res
+) => {
+
+  try {
+
+    const attempts =
+      await attemptService.getQuizAttempts(
+        req.params.quizId,
+        req.user.userId
+      );
+
+    return res.status(200).json({
+      success: true,
+      data: attempts
+    });
+
+  } catch (error) {
+
+    return res.status(400).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+
+};
+
+const exportQuizResults = async (
+  req,
+  res
+) => {
+
+  try {
+
+    const workbook =
+      await attemptService.exportQuizResults(
+        req.params.quizId,
+        req.user.userId
+      );
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=quiz-results.xlsx"
+    );
+
+    await workbook.xlsx.write(
+      res
+    );
+
+    res.end();
+
+  } catch (error) {
+
+    return res.status(400).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+
+};
+
 module.exports = {
   startQuiz,
   submitQuiz,
-  getResult
+  getResult,
+  getQuizAttempts,
+  exportQuizResults
 };

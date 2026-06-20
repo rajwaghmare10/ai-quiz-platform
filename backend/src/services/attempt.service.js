@@ -1,3 +1,5 @@
+const ExcelJS = require("exceljs"); 
+
 const attemptRepository =
   require("../repositories/attempt.repository");
 
@@ -8,7 +10,7 @@ const classRepository =
   require("../repositories/class.repository");
 
 const questionRepository =
-  require("../repositories/question.repository");
+  require("../repositories/question.repository"); 
 
 const studentAnswerRepository =
   require("../repositories/studentAnswer.repository");
@@ -159,8 +161,123 @@ const getResult = async (
   };
 };
 
+const getQuizAttempts = async (
+  quizId,
+  teacherId
+) => {
+
+  const quiz =
+    await quizRepository.getQuizById(
+      quizId
+    );
+
+  if (!quiz) {
+    throw new Error(
+      "Quiz not found"
+    );
+  }
+
+  const classData =
+    await classRepository.findClassById(
+      quiz.class_id
+    );
+
+  if (
+    classData.teacher_id !== teacherId
+  ) {
+    throw new Error(
+      "Access denied"
+    );
+  }
+
+  return await attemptRepository.getAttemptsByQuizId(
+    quizId
+  );
+};
+
+const exportQuizResults = async (
+  quizId,
+  teacherId
+) => {
+
+  const quiz =
+    await quizRepository.getQuizById(
+      quizId
+    );
+
+  if (!quiz) {
+    throw new Error(
+      "Quiz not found"
+    );
+  }
+
+  const classData =
+    await classRepository.findClassById(
+      quiz.class_id
+    );
+
+  if (
+    classData.teacher_id !== teacherId
+  ) {
+    throw new Error(
+      "Access denied"
+    );
+  }
+
+  const attempts =
+    await attemptRepository.getAttemptsByQuizId(
+      quizId
+    );
+
+  const workbook =
+    new ExcelJS.Workbook();
+
+  const worksheet =
+    workbook.addWorksheet(
+      "Results"
+    );
+
+  worksheet.columns = [
+    {
+      header: "Student Name",
+      key: "name",
+      width: 25
+    },
+    {
+      header: "Email",
+      key: "email",
+      width: 30
+    },
+    {
+      header: "Score",
+      key: "score",
+      width: 15
+    },
+    {
+      header: "Status",
+      key: "status",
+      width: 15
+    },
+    {
+      header: "Submitted At",
+      key: "submitted_at",
+      width: 30
+    }
+  ];
+
+  attempts.forEach(
+    (attempt) => {
+      worksheet.addRow(attempt);
+    }
+  );
+
+  return workbook;
+};
+
 module.exports = {
   startQuiz,
   submitQuiz,
-  getResult
+  getResult,
+  getQuizAttempts,
+  exportQuizResults
 };

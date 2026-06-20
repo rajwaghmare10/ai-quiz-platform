@@ -112,10 +112,40 @@ const getResultByAttemptId = async (
   return result.rows[0];
 };
 
+const getAttemptsByQuizId = async (
+  quizId
+) => {
+
+  const query = `
+    SELECT
+      qa.attempt_id,
+      qa.score,
+      qa.status,
+      qa.started_at,
+      qa.submitted_at,
+      u.user_id,
+      u.name,
+      u.email
+    FROM quiz_attempts qa
+    JOIN users u
+      ON qa.student_id = u.user_id
+    WHERE qa.quiz_id = $1
+    ORDER BY qa.submitted_at DESC
+  `;
+
+  const result = await pool.query(
+    query,
+    [quizId]
+  );
+
+  return result.rows;
+};
+
 module.exports = {
   findAttemptByQuizAndStudent,
   createAttempt,
   getAttemptById,
   updateAttempt,
-  getResultByAttemptId
+  getResultByAttemptId,
+  getAttemptsByQuizId
 };
