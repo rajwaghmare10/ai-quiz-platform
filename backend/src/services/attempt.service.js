@@ -1,4 +1,4 @@
-const ExcelJS = require("exceljs"); 
+const ExcelJS = require("exceljs");
 
 const attemptRepository =
   require("../repositories/attempt.repository");
@@ -10,10 +10,12 @@ const classRepository =
   require("../repositories/class.repository");
 
 const questionRepository =
-  require("../repositories/question.repository"); 
+  require("../repositories/question.repository");
 
 const studentAnswerRepository =
   require("../repositories/studentAnswer.repository");
+
+const attemptQuestionRepository = require("../repositories/attemptQuestion.repository");
 
 const startQuiz = async (
   quizId,
@@ -55,10 +57,32 @@ const startQuiz = async (
     );
   }
 
-  return await attemptRepository.createAttempt(
+  const attempt = await attemptRepository.createAttempt(
     quizId,
     studentId
   );
+
+  const questions = await questionRepository.getQuestionsByQuizId(
+    quizId
+  );
+
+  const shuffledQuestions = questions.sort(
+    () => Math.random() - 0.5
+  );
+
+  const selectedQuestions = shuffledQuestions.slice(
+    0,
+    quiz.questions_per_attempt
+  );
+
+  await attemptQuestionRepository.saveAttemptQuestions(
+    attempt.attempt_id,
+    selectedQuestions.map(
+      question => question.question_id
+    )
+  );
+
+  return attempt;
 };
 
 const submitQuiz = async (
@@ -83,9 +107,19 @@ const submitQuiz = async (
     );
   }
 
+  const assignedQuestions =
+    await attemptQuestionRepository.getQuestionIdsByAttemptId(
+      attemptId
+    );
+
+  const questionIds =
+    assignedQuestions.map(
+      item => item.question_id
+    );
+
   const questions =
-    await questionRepository.getQuestionsByQuizId(
-      attempt.quiz_id
+    await questionRepository.getQuestionsByIds(
+      questionIds
     );
 
   let score = 0;
@@ -195,6 +229,34 @@ const getQuizAttempts = async (
   );
 };
 
+const getAttemptQuestions = async (
+  attemptId
+) => {
+
+  const assignedQuestions =
+    await attemptQuestionRepository.getQuestionIdsByAttemptId(
+      attemptId
+    );
+
+  const questionIds =
+    assignedQuestions.map(
+      item => item.question_id
+    );
+
+  const questions =
+    await questionRepository.getQuestionsByIds(
+      questionIds
+    );
+
+  return questions.map(
+    ({
+      correct_option,
+      ...question
+    }) => question
+  );
+
+};
+
 const exportQuizResults = async (
   quizId,
   teacherId
@@ -279,5 +341,6 @@ module.exports = {
   submitQuiz,
   getResult,
   getQuizAttempts,
+  getAttemptQuestions,
   exportQuizResults
 };

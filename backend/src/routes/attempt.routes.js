@@ -28,6 +28,13 @@ router.post(
 );
 
 router.get(
+  "/:attemptId/questions",
+  authenticate,
+  authorize("student"),
+  attemptController.getAttemptQuestions
+);
+
+router.get(
   "/:attemptId/result",
   authenticate,
   attemptController.getResult

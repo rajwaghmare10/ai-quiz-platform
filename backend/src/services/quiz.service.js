@@ -9,6 +9,7 @@ const createQuiz = async ({
     durationMinutes,
     startTime,
     endTime,
+    questionsPerAttempt,
     teacherId
 }) => {
 
@@ -33,37 +34,37 @@ const createQuiz = async ({
         );
     }
 
-    return await quizRepository
-        .createQuiz({
-            classId,
-            title,
-            durationMinutes,
-            startTime,
-            endTime
-        });
+    return await quizRepository.createQuiz({
+        classId,
+        title,
+        durationMinutes,
+        startTime,
+        endTime,
+        questionsPerAttempt
+    });
 };
 
 const getQuizDetails = async (quizId) => {
 
-  const quiz =
-    await quizRepository.getQuizById(
-      quizId
-    );
+    const quiz =
+        await quizRepository.getQuizById(
+            quizId
+        );
 
-  if (!quiz) {
-    throw new Error("Quiz not found");
-  }
+    if (!quiz) {
+        throw new Error("Quiz not found");
+    }
 
-  const questions =
-    await questionRepository.getQuestionsByQuizId(
-      quizId
-    );
+    const questions =
+        await questionRepository.getQuestionsByQuizId(
+            quizId
+        );
 
 
-  return {
-    ...quiz,
-    questions
-  };
+    return {
+        ...quiz,
+        questions
+    };
 };
 module.exports = {
     createQuiz,

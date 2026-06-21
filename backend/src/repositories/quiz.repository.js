@@ -5,7 +5,8 @@ const createQuiz = async ({
     title,
     durationMinutes,
     startTime,
-    endTime
+    endTime,
+    questionsPerAttempt
 }) => {
 
     const query = `
@@ -16,9 +17,19 @@ const createQuiz = async ({
             duration_minutes,
             start_time,
             end_time,
-            total_questions
+            total_questions,
+            questions_per_attempt
         )
-        VALUES ($1,$2,$3,$4,$5,0)
+        VALUES
+        (
+            $1,
+            $2,
+            $3,
+            $4,
+            $5,
+            $6,
+            $7
+        )
         RETURNING *
     `;
 
@@ -29,7 +40,9 @@ const createQuiz = async ({
             title,
             durationMinutes,
             startTime,
-            endTime
+            endTime,
+            0,
+            questionsPerAttempt
         ]
     );
 
@@ -70,7 +83,7 @@ const getQuizById = async (quizId) => {
 };
 
 module.exports = {
-    createQuiz,
-    updateTotalQuestions,
-    getQuizById
+  createQuiz,
+  updateTotalQuestions,
+  getQuizById
 };

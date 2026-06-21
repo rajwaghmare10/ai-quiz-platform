@@ -62,7 +62,22 @@ const getQuestionsByQuizId = async (
   return result.rows;
 };
 
+const getQuestionsByIds = async (questionIds) => {
+
+    const result = await pool.query(
+        `
+        SELECT *
+        FROM questions
+        WHERE question_id = ANY($1)
+        `,
+        [questionIds]
+    );
+
+    return result.rows;
+};
+
 module.exports = {
   createQuestions,
-  getQuestionsByQuizId
+  getQuestionsByQuizId,
+  getQuestionsByIds
 };

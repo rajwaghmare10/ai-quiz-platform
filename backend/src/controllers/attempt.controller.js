@@ -116,6 +116,35 @@ const getQuizAttempts = async (
 
 };
 
+
+const getAttemptQuestions = async (
+  req,
+  res
+) => {
+
+  try {
+
+    const questions =
+      await attemptService.getAttemptQuestions(
+        req.params.attemptId
+      );
+
+    return res.status(200).json({
+      success: true,
+      data: questions
+    });
+
+  } catch (error) {
+
+    return res.status(400).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+
+};
+
 const exportQuizResults = async (
   req,
   res
@@ -161,5 +190,6 @@ module.exports = {
   submitQuiz,
   getResult,
   getQuizAttempts,
+  getAttemptQuestions,
   exportQuizResults
 };
