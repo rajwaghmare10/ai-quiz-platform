@@ -15,6 +15,8 @@ const questionRoutes = require("./routes/question.routes");
 
 const attemptRoutes = require("./routes/attempt.routes");
 
+const aiRoutes = require("./routes/ai.routes");
+
 app.use(cors());
 app.use(express.json());
 
@@ -29,6 +31,8 @@ app.use("/api/quizzes", quizRoutes);
 app.use("/api/questions",questionRoutes );
 
 app.use("/api/attempts", attemptRoutes);
+
+app.use("/api/ai", aiRoutes);
 
 app.get("/health", (req, res) => {
   res.status(200).json({

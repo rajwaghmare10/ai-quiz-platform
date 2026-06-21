@@ -76,8 +76,32 @@ const getQuestionsByIds = async (questionIds) => {
     return result.rows;
 };
 
+const findQuestionByText = async (
+  quizId,
+  questionText
+) => {
+
+  const query = `
+    SELECT *
+    FROM questions
+    WHERE quiz_id = $1
+    AND LOWER(question_text) = LOWER($2)
+  `;
+
+  const result = await pool.query(
+    query,
+    [
+      quizId,
+      questionText
+    ]
+  );
+
+  return result.rows[0];
+};
+
 module.exports = {
   createQuestions,
   getQuestionsByQuizId,
-  getQuestionsByIds
+  getQuestionsByIds,
+  findQuestionByText
 };

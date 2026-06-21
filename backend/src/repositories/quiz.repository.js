@@ -1,15 +1,15 @@
 const pool = require("../config/db");
 
 const createQuiz = async ({
-    classId,
-    title,
-    durationMinutes,
-    startTime,
-    endTime,
-    questionsPerAttempt
+  classId,
+  title,
+  durationMinutes,
+  startTime,
+  endTime,
+  questionsPerAttempt
 }) => {
 
-    const query = `
+  const query = `
         INSERT INTO quizzes
         (
             class_id,
@@ -33,20 +33,20 @@ const createQuiz = async ({
         RETURNING *
     `;
 
-    const result = await pool.query(
-        query,
-        [
-            classId,
-            title,
-            durationMinutes,
-            startTime,
-            endTime,
-            0,
-            questionsPerAttempt
-        ]
-    );
+  const result = await pool.query(
+    query,
+    [
+      classId,
+      title,
+      durationMinutes,
+      startTime,
+      endTime,
+      0,
+      questionsPerAttempt
+    ]
+  );
 
-    return result.rows[0];
+  return result.rows[0];
 };
 
 const updateTotalQuestions = async (
@@ -56,8 +56,8 @@ const updateTotalQuestions = async (
 
   const query = `
     UPDATE quizzes
-    SET total_questions = $1
-    WHERE quiz_id = $2
+SET total_questions = total_questions + $1
+WHERE quiz_id = $2
   `;
 
   await pool.query(query, [
