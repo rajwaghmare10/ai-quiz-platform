@@ -24,4 +24,18 @@ router.post(
     questionController.uploadExcelQuestions
 );
 
+router.put(
+    "/:questionId",
+    authenticate,
+    authorize("teacher"),
+    questionController.updateQuestion
+);
+
+router.delete(
+    "/:questionId",
+    authenticate,
+    authorize("teacher"),
+    questionController.deleteQuestion
+);
+
 module.exports = router;

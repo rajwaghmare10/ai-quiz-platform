@@ -27,9 +27,67 @@ const uploadExcelQuestions = async (
     });
 
   }
+};
+
+const updateQuestion = async (
+  req,
+  res
+) => {
+
+  try {
+
+    const question =
+      await questionService.updateQuestion(
+        req.params.questionId,
+        req.body
+      );
+
+    return res.status(200).json({
+      success: true,
+      data: question
+    });
+
+  } catch (error) {
+
+    return res.status(400).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+
+};
+
+const deleteQuestion = async (
+  req,
+  res
+) => {
+
+  try {
+
+    const question =
+      await questionService.deleteQuestion(
+        req.params.questionId
+      );
+
+    return res.status(200).json({
+      success: true,
+      data: question
+    });
+
+  } catch (error) {
+
+    return res.status(400).json({
+      success: false,
+      message: error.message
+    });
+
+  }
 
 };
 
 module.exports = {
-  uploadExcelQuestions
+  uploadExcelQuestions,
+  updateQuestion,
+  deleteQuestion
 };

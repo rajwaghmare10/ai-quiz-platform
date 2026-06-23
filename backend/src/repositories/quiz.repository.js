@@ -82,8 +82,26 @@ const getQuizById = async (quizId) => {
   return result.rows[0];
 };
 
+const decreaseTotalQuestions = async (
+  quizId
+) => {
+
+  const query = `
+    UPDATE quizzes
+    SET total_questions =
+      total_questions - 1
+    WHERE quiz_id = $1
+  `;
+
+  await pool.query(
+    query,
+    [quizId]
+  );
+};
+
 module.exports = {
   createQuiz,
   updateTotalQuestions,
-  getQuizById
+  getQuizById,
+  decreaseTotalQuestions
 };

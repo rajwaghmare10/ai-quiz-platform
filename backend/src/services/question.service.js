@@ -46,6 +46,101 @@ const processExcelQuestions = async (
   return savedQuestions;
 };
 
+const updateQuestion = async (
+  questionId,
+  {
+    questionText,
+    options,
+    correctOption,
+    marks
+  }
+) => {
+
+  const existingQuestion =
+    await questionRepository.getQuestionById(
+      questionId
+    );
+
+  if (!existingQuestion) {
+    throw new Error(
+      "Question not found"
+    );
+  }
+
+  if (!questionText) {
+    throw new Error(
+      "Question text is required"
+    );
+  }
+
+  if (
+    !options ||
+    Object.keys(options).length !== 4
+  ) {
+    throw new Error(
+      "Exactly 4 options are required"
+    );
+  }
+
+  if (
+    ![1, 2, 3, 4].includes(
+      Number(correctOption)
+    )
+  ) {
+    throw new Error(
+      "Correct option must be between 1 and 4"
+    );
+  }
+
+  if (
+    Number(marks) <= 0
+  ) {
+    throw new Error(
+      "Marks must be greater than 0"
+    );
+  }
+
+  return await questionRepository.updateQuestion(
+    questionId,
+    {
+      questionText,
+      options,
+      correctOption,
+      marks
+    }
+  );
+};
+
+const deleteQuestion = async (
+  questionId
+) => {
+
+  const existingQuestion =
+    await questionRepository.getQuestionById(
+      questionId
+    );
+
+  if (!existingQuestion) {
+    throw new Error(
+      "Question not found"
+    );
+  }
+
+  const deletedQuestion =
+    await questionRepository.deleteQuestion(
+      questionId
+    );
+
+  await quizRepository.decreaseTotalQuestions(
+    existingQuestion.quiz_id
+  );
+
+  return deletedQuestion;
+};
+
+
 module.exports = {
-  processExcelQuestions
+  processExcelQuestions,
+  updateQuestion,
+  deleteQuestion
 };

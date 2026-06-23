@@ -99,9 +99,83 @@ const findQuestionByText = async (
   return result.rows[0];
 };
 
+const updateQuestion = async (
+  questionId,
+  {
+    questionText,
+    options,
+    correctOption,
+    marks
+  }
+) => {
+
+  const query = `
+    UPDATE questions
+    SET
+      question_text = $1,
+      options = $2,
+      correct_option = $3,
+      marks = $4
+    WHERE question_id = $5
+    RETURNING *
+  `;
+
+  const result = await pool.query(
+    query,
+    [
+      questionText,
+      JSON.stringify(options),
+      correctOption,
+      marks,
+      questionId
+    ]
+  );
+
+  return result.rows[0];
+};
+
+const getQuestionById = async (
+  questionId
+) => {
+
+  const query = `
+    SELECT *
+    FROM questions
+    WHERE question_id = $1
+  `;
+
+  const result = await pool.query(
+    query,
+    [questionId]
+  );
+
+  return result.rows[0];
+};
+
+const deleteQuestion = async (
+  questionId
+) => {
+
+  const query = `
+    DELETE FROM questions
+    WHERE question_id = $1
+    RETURNING *
+  `;
+
+  const result = await pool.query(
+    query,
+    [questionId]
+  );
+
+  return result.rows[0];
+};
+
 module.exports = {
   createQuestions,
   getQuestionsByQuizId,
   getQuestionsByIds,
-  findQuestionByText
+  findQuestionByText,
+  updateQuestion,
+  getQuestionById,
+  deleteQuestion
 };
