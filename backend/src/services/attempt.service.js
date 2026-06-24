@@ -33,6 +33,35 @@ const startQuiz = async (
     );
   }
 
+  const now =
+    new Date();
+
+  const startTime =
+    new Date(
+      quiz.start_time
+    );
+
+  const endTime =
+    new Date(
+      quiz.end_time
+    );
+
+  if (
+    now < startTime
+  ) {
+    throw new Error(
+      "Quiz has not started yet"
+    );
+  }
+
+  if (
+    now > endTime
+  ) {
+    throw new Error(
+      "Quiz has already ended"
+    );
+  }
+
   const member =
     await classRepository.isStudentInClass(
       quiz.class_id,
@@ -169,7 +198,8 @@ const submitQuiz = async (
 
 
 const getResult = async (
-  attemptId
+  attemptId,
+  studentId
 ) => {
 
   const attempt =
@@ -180,6 +210,15 @@ const getResult = async (
   if (!attempt) {
     throw new Error(
       "Attempt not found"
+    );
+  }
+
+  if (
+    attempt.student_id !==
+    studentId
+  ) {
+    throw new Error(
+      "Access denied"
     );
   }
 
@@ -230,13 +269,34 @@ const getQuizAttempts = async (
 };
 
 const getAttemptQuestions = async (
-  attemptId
+  attemptId,
+  studentId
 ) => {
 
   const assignedQuestions =
     await attemptQuestionRepository.getQuestionIdsByAttemptId(
       attemptId
     );
+
+  const attempt =
+    await attemptRepository.getAttemptById(
+      attemptId
+    );
+
+  if (!attempt) {
+    throw new Error(
+      "Attempt not found"
+    );
+  }
+
+  if (
+    attempt.student_id !==
+    studentId
+  ) {
+    throw new Error(
+      "Access denied"
+    );
+  }
 
   const questionIds =
     assignedQuestions.map(

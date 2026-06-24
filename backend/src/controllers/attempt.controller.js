@@ -68,7 +68,8 @@ const getResult = async (
 
     const result =
       await attemptService.getResult(
-        req.params.attemptId
+        req.params.attemptId,
+        req.user.userId
       );
 
     return res.status(200).json({
@@ -126,7 +127,8 @@ const getAttemptQuestions = async (
 
     const questions =
       await attemptService.getAttemptQuestions(
-        req.params.attemptId
+        req.params.attemptId,
+        req.user.userId
       );
 
     return res.status(200).json({

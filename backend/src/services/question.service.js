@@ -48,6 +48,7 @@ const processExcelQuestions = async (
 
 const updateQuestion = async (
   questionId,
+  teacherId,
   {
     questionText,
     options,
@@ -64,6 +65,25 @@ const updateQuestion = async (
   if (!existingQuestion) {
     throw new Error(
       "Question not found"
+    );
+  }
+
+  const quiz =
+    await quizRepository.getQuizById(
+      existingQuestion.quiz_id
+    );
+
+  const classData =
+    await classRepository.findClassById(
+      quiz.class_id
+    );
+
+  if (
+    classData.teacher_id !==
+    teacherId
+  ) {
+    throw new Error(
+      "Access denied"
     );
   }
 
@@ -112,7 +132,8 @@ const updateQuestion = async (
 };
 
 const deleteQuestion = async (
-  questionId
+  questionId,
+  teacherId
 ) => {
 
   const existingQuestion =
@@ -123,6 +144,25 @@ const deleteQuestion = async (
   if (!existingQuestion) {
     throw new Error(
       "Question not found"
+    );
+  }
+
+  const quiz =
+    await quizRepository.getQuizById(
+      existingQuestion.quiz_id
+    );
+
+  const classData =
+    await classRepository.findClassById(
+      quiz.class_id
+    );
+
+  if (
+    classData.teacher_id !==
+    teacherId
+  ) {
+    throw new Error(
+      "Access denied"
     );
   }
 

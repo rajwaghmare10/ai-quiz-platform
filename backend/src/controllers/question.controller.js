@@ -39,6 +39,7 @@ const updateQuestion = async (
     const question =
       await questionService.updateQuestion(
         req.params.questionId,
+        req.user.userId,
         req.body
       );
 
@@ -67,7 +68,8 @@ const deleteQuestion = async (
 
     const question =
       await questionService.deleteQuestion(
-        req.params.questionId
+        req.params.questionId,
+        req.user.userId
       );
 
     return res.status(200).json({
