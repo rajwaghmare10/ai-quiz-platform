@@ -17,6 +17,40 @@ const studentAnswerRepository =
 
 const attemptQuestionRepository = require("../repositories/attemptQuestion.repository");
 
+
+const validateAttemptTime = async (
+  attempt
+) => {
+
+  const quiz =
+    await quizRepository.getQuizById(
+      attempt.quiz_id
+    );
+
+  const startedAt =
+    new Date(
+      attempt.started_at
+    );
+
+  const expiryTime =
+    new Date(
+      startedAt.getTime() +
+      quiz.duration_minutes * 60 * 1000
+    );
+
+  const now =
+    new Date();
+
+  if (
+    now > expiryTime
+  ) {
+    throw new Error(
+      "Quiz time has expired"
+    );
+  }
+
+};
+
 const startQuiz = async (
   quizId,
   studentId
@@ -135,6 +169,10 @@ const submitQuiz = async (
       "Quiz already submitted"
     );
   }
+
+  await validateAttemptTime(
+    attempt
+  );
 
   const assignedQuestions =
     await attemptQuestionRepository.getQuestionIdsByAttemptId(
@@ -297,6 +335,10 @@ const getAttemptQuestions = async (
       "Access denied"
     );
   }
+
+  await validateAttemptTime(
+    attempt
+  );
 
   const questionIds =
     assignedQuestions.map(
