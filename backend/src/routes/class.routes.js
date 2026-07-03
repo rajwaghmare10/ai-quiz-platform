@@ -41,4 +41,12 @@ router.get(
     authenticate,
     classController.getClassDetails
 );
+
+router.get(
+  "/:classId/students",
+  authenticate,
+  authorize("teacher"),
+  classController.getClassStudents
+);
+
 module.exports = router;

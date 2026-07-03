@@ -102,10 +102,15 @@ const getClassDetails = async (
     return foundClass;
 };
 
+const getClassStudents = async (classId) => {
+  return await classRepository.getClassStudents(classId);
+};
+
 module.exports = {
   createClass,
   getMyClasses,
   joinClass,
   getJoinedClasses,
-  getClassDetails
+  getClassDetails,
+  getClassStudents
 };

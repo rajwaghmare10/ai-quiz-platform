@@ -141,10 +141,20 @@ const getClassDetails = async (
     }
 };
 
+const getClassStudents = async (req, res) => {
+  try {
+    const students = await classService.getClassStudents(req.params.classId);
+    return res.status(200).json({ success: true, data: students });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   createClass,
   getMyClasses,
   joinClass,
   getJoinedClasses,
-  getClassDetails
+  getClassDetails,
+  getClassStudents
 };
