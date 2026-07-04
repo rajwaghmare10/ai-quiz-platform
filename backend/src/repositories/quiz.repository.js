@@ -99,9 +99,35 @@ const decreaseTotalQuestions = async (
   );
 };
 
+const getQuizzesByClassId = async (classId) => {
+  const query = `
+    SELECT *
+    FROM quizzes
+    WHERE class_id = $1
+    ORDER BY created_at DESC
+  `;
+
+  const result = await pool.query(query, [classId]);
+  return result.rows;
+};
+
+const deleteQuiz = async (quizId) => {
+  const query = `
+    DELETE FROM quizzes
+    WHERE quiz_id = $1
+    RETURNING *
+  `;
+
+  const result = await pool.query(query, [quizId]);
+  return result.rows[0];
+};
+
+
 module.exports = {
   createQuiz,
   updateTotalQuestions,
   getQuizById,
-  decreaseTotalQuestions
+  decreaseTotalQuestions,
+  getQuizzesByClassId,
+  deleteQuiz
 };

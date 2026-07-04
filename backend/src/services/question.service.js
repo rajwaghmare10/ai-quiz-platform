@@ -3,6 +3,7 @@ const fs = require("fs");
 
 const questionRepository = require("../repositories/question.repository");
 const quizRepository = require("../repositories/quiz.repository");
+const classRepository = require("../repositories/class.repository");
 
 const processExcelQuestions = async (
   quizId,

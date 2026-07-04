@@ -106,11 +106,26 @@ const getClassStudents = async (classId) => {
   return await classRepository.getClassStudents(classId);
 };
 
+const deleteClass = async (classId, teacherId) => {
+  const foundClass = await classRepository.findClassById(classId);
+
+  if (!foundClass) {
+    throw new Error("Class not found");
+  }
+
+  if (foundClass.teacher_id !== teacherId) {
+    throw new Error("You do not own this class");
+  }
+
+  return await classRepository.deactivateClass(classId);
+};
+
 module.exports = {
   createClass,
   getMyClasses,
   joinClass,
   getJoinedClasses,
   getClassDetails,
-  getClassStudents
+  getClassStudents,
+  deleteClass
 };

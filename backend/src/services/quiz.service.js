@@ -33,7 +33,11 @@ const createQuiz = async ({
             "You do not own this class"
         );
     }
-
+    if (new Date(endTime) <= new Date(startTime)) {
+        throw new Error(
+            "End time must be after start time"
+        );
+    }
     return await quizRepository.createQuiz({
         classId,
         title,
@@ -66,7 +70,48 @@ const getQuizDetails = async (quizId) => {
         questions
     };
 };
+
+const getQuizzesByClassId = async (classId, userId, role) => {
+
+    const foundClass = await classRepository.findClassById(classId);
+
+    if (!foundClass) {
+        throw new Error("Class not found");
+    }
+
+    if (role === "teacher") {
+        if (foundClass.teacher_id !== userId) {
+            throw new Error("You do not own this class");
+        }
+    } else if (role === "student") {
+        const isMember = await classRepository.isStudentInClass(classId, userId);
+        if (!isMember) {
+            throw new Error("You are not enrolled in this class");
+        }
+    }
+
+    return await quizRepository.getQuizzesByClassId(classId);
+};
+
+const deleteQuiz = async (quizId, teacherId) => {
+  const quiz = await quizRepository.getQuizById(quizId);
+
+  if (!quiz) {
+    throw new Error("Quiz not found");
+  }
+
+  const foundClass = await classRepository.findClassById(quiz.class_id);
+
+  if (foundClass.teacher_id !== teacherId) {
+    throw new Error("You do not own this quiz");
+  }
+
+  return await quizRepository.deleteQuiz(quizId);
+};
+
 module.exports = {
     createQuiz,
-    getQuizDetails
+    getQuizDetails,
+    getQuizzesByClassId,
+    deleteQuiz
 };

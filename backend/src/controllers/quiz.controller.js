@@ -1,33 +1,33 @@
 const quizService =
-    require("../services/quiz.service");
+  require("../services/quiz.service");
 
 const createQuiz = async (
-    req,
-    res
+  req,
+  res
 ) => {
 
-    try {
+  try {
 
-        const quiz =
-            await quizService.createQuiz({
-                ...req.body,
-                teacherId:
-                    req.user.userId
-            });
+    const quiz =
+      await quizService.createQuiz({
+        ...req.body,
+        teacherId:
+          req.user.userId
+      });
 
-        return res.status(201).json({
-            success: true,
-            data: quiz
-        });
+    return res.status(201).json({
+      success: true,
+      data: quiz
+    });
 
-    } catch (error) {
+  } catch (error) {
 
-        return res.status(400).json({
-            success: false,
-            message: error.message
-        });
+    return res.status(400).json({
+      success: false,
+      message: error.message
+    });
 
-    }
+  }
 
 };
 
@@ -59,7 +59,37 @@ const getQuizDetails = async (
 
 };
 
+const getQuizzesByClass = async (req, res) => {
+  try {
+    const quizzes = await quizService.getQuizzesByClassId(
+      req.params.classId,
+      req.user.userId,
+      req.user.role
+    );
+    return res.status(200).json({ success: true, data: quizzes });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+const deleteQuiz = async (req, res) => {
+  try {
+    await quizService.deleteQuiz(req.params.quizId, req.user.userId);
+    return res.status(200).json({
+      success: true,
+      message: "Quiz deleted successfully"
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 module.exports = {
-    createQuiz,
-    getQuizDetails
+  createQuiz,
+  getQuizDetails,
+  getQuizzesByClass,
+  deleteQuiz
 };

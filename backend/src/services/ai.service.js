@@ -4,6 +4,8 @@ const questionRepository = require("../repositories/question.repository");
 
 const quizRepository = require("../repositories/quiz.repository");
 
+const classRepository = require("../repositories/class.repository");
+
 const generateQuestions = async ({
     topic,
     difficulty,
@@ -69,7 +71,17 @@ const saveGeneratedQuestions = async ({
             "Questions are required"
         );
     }
+    
+    if (!quiz) {
+        throw new Error("Quiz not found");
+    }
 
+    const foundClass = await classRepository.findClassById(quiz.class_id);
+
+    if (foundClass.teacher_id !== teacherId) {
+        throw new Error("You do not own this quiz");
+    }
+    
     for (
         const question
         of questions

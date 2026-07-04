@@ -1,9 +1,10 @@
 const pool = require("../config/db");
 
-const createStudentAnswers = async (
-  answers
-) => {
-
+const createStudentAnswers = async (answers) => {
+  if (!answers || answers.length === 0) {
+    return [];
+  }
+  
   const values = [];
   const placeholders = [];
 

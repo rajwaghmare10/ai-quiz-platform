@@ -8,6 +8,8 @@ const classController = require("../controllers/class.controller");
 
 const { authorize } = require("../middlewares/role.middleware");
 
+const quizController = require("../controllers/quiz.controller");
+
 router.post(
     "/",
     authenticate,
@@ -47,6 +49,20 @@ router.get(
   authenticate,
   authorize("teacher"),
   classController.getClassStudents
+);
+
+router.get(
+  "/:classId/quizzes",
+  authenticate,
+  authorize("teacher", "student"),
+  quizController.getQuizzesByClass
+);
+
+router.delete(
+  "/:classId",
+  authenticate,
+  authorize("teacher"),
+  classController.deleteClass
 );
 
 module.exports = router;

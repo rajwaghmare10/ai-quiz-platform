@@ -20,11 +20,17 @@ const createClass = async (classData) => {
   return response.data.data;
 };
 
+const deleteClass = async (classId) => {
+  const response = await axiosInstance.delete(`/classes/${classId}`);
+  return response.data;
+};
+
 const classService = {
   getMyClasses,
   getClassById,
   getClassStudents,
   createClass,
+  deleteClass,
 };
 
 export default classService;

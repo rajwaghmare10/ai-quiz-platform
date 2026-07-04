@@ -150,11 +150,27 @@ const getClassStudents = async (req, res) => {
   }
 };
 
+const deleteClass = async (req, res) => {
+  try {
+    await classService.deleteClass(req.params.classId, req.user.userId);
+    return res.status(200).json({
+      success: true,
+      message: "Class deleted successfully"
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 module.exports = {
   createClass,
   getMyClasses,
   joinClass,
   getJoinedClasses,
   getClassDetails,
-  getClassStudents
+  getClassStudents,
+  deleteClass
 };

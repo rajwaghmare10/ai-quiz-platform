@@ -38,9 +38,10 @@ const saveGeneratedQuestions = async (
     try {
 
         const questions =
-            await aiService.saveGeneratedQuestions(
-                req.body
-            );
+            await aiService.saveGeneratedQuestions({
+                ...req.body,
+                teacherId: req.user.userId
+            });
 
         return res.status(201).json({
             success: true,

@@ -40,6 +40,7 @@ const getClassesByTeacherId =
         SELECT *
         FROM classes
         WHERE teacher_id = $1
+        AND is_active = true
         ORDER BY created_at DESC
     `;
 
@@ -59,6 +60,7 @@ const findClassByCode =
         SELECT *
         FROM classes
         WHERE class_code = $1
+        AND is_active = true
     `;
 
         const result =
@@ -122,6 +124,7 @@ const getJoinedClasses = async (studentId) => {
         JOIN classes c
         ON cm.class_id = c.class_id
         WHERE cm.student_id = $1
+        AND c.is_active = true
         ORDER BY c.created_at DESC
     `;
 
@@ -215,6 +218,18 @@ const getClassStudents = async (classId) => {
   return result.rows;
 };
 
+const deactivateClass = async (classId) => {
+  const query = `
+    UPDATE classes
+    SET is_active = false
+    WHERE class_id = $1
+    RETURNING *
+  `;
+
+  const result = await pool.query(query, [classId]);
+  return result.rows[0];
+};
+
 module.exports = {
     createClass,
     getClassesByTeacherId,
@@ -225,5 +240,6 @@ module.exports = {
     getClassDetails,
     findClassById,
     isStudentInClass,
-    getClassStudents
+    getClassStudents,
+    deactivateClass
 };

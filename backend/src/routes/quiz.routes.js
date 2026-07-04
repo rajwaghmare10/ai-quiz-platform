@@ -43,4 +43,11 @@ router.get(
   attemptController.exportQuizResults
 );
 
+router.delete(
+  "/:quizId",
+  authenticate,
+  authorize("teacher"),
+  quizController.deleteQuiz
+);
+
 module.exports = router;

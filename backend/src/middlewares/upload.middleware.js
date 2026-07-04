@@ -34,7 +34,18 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({
-    storage
+    storage,
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = [
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/vnd.ms-excel"
+        ];
+        if (allowedTypes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error("Only Excel files (.xlsx, .xls) are allowed"));
+        }
+    }
 });
 
 module.exports = upload;

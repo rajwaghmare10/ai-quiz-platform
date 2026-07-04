@@ -8,6 +8,23 @@ const registerUser = async ({
   role
 }) => {
 
+  if (!name || !name.trim()) {
+    throw new Error("Name is required");
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRegex.test(email)) {
+    throw new Error("A valid email is required");
+  }
+
+  if (!password || password.length < 6) {
+    throw new Error("Password must be at least 6 characters");
+  }
+
+  if (!["teacher", "student"].includes(role)) {
+    throw new Error("Role must be either teacher or student");
+  }
+
   const existingUser =
     await authRepository.findUserByEmail(email);
 
