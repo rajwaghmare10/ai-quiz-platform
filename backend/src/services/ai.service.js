@@ -54,7 +54,8 @@ const generateQuestions = async ({
 
 const saveGeneratedQuestions = async ({
     quizId,
-    questions
+    questions,
+    teacherId
 }) => {
 
     if (!quizId) {
@@ -72,6 +73,8 @@ const saveGeneratedQuestions = async ({
         );
     }
     
+    const quiz = await quizRepository.getQuizById(quizId);
+
     if (!quiz) {
         throw new Error("Quiz not found");
     }

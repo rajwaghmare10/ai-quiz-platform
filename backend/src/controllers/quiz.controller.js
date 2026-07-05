@@ -87,9 +87,30 @@ const deleteQuiz = async (req, res) => {
   }
 };
 
+const updateQuiz = async (req, res) => {
+  try {
+    const quiz = await quizService.updateQuiz(
+      req.params.quizId,
+      req.user.userId,
+      req.body
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: quiz
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 module.exports = {
   createQuiz,
   getQuizDetails,
   getQuizzesByClass,
-  deleteQuiz
+  deleteQuiz,
+  updateQuiz
 };

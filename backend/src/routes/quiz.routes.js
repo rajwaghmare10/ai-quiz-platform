@@ -50,4 +50,11 @@ router.delete(
   quizController.deleteQuiz
 );
 
+router.put(
+  "/:quizId",
+  authenticate,
+  authorize("teacher"),
+  quizController.updateQuiz
+);
+
 module.exports = router;

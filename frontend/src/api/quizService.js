@@ -15,13 +15,13 @@ const getQuizById = async (quizId) => {
   return response.data.data;
 };
 
-const deleteQuiz = async (quizId) => {
-  const response = await axiosInstance.delete(`/quizzes/${quizId}`);
-  return response.data;
+const getQuizDetails = async (quizId) => {
+  const response = await axiosInstance.get(`/quizzes/${quizId}`);
+  return response.data.data;
 };
 
-const deleteClass = async (classId) => {
-  const response = await axiosInstance.delete(`/classes/${classId}`);
+const deleteQuiz = async (quizId) => {
+  const response = await axiosInstance.delete(`/quizzes/${quizId}`);
   return response.data;
 };
 
@@ -29,8 +29,8 @@ const quizService = {
   createQuiz,
   getQuizzesByClass,
   getQuizById,
+  getQuizDetails,
   deleteQuiz,
-  deleteClass
 };
 
 export default quizService;

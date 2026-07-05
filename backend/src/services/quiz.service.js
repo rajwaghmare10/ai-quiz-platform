@@ -109,9 +109,42 @@ const deleteQuiz = async (quizId, teacherId) => {
   return await quizRepository.deleteQuiz(quizId);
 };
 
+
+const updateQuiz = async (
+  quizId,
+  teacherId,
+  { title, durationMinutes, startTime, endTime, questionsPerAttempt }
+) => {
+
+  const quiz = await quizRepository.getQuizById(quizId);
+
+  if (!quiz) {
+    throw new Error("Quiz not found");
+  }
+
+  const foundClass = await classRepository.findClassById(quiz.class_id);
+
+  if (foundClass.teacher_id !== teacherId) {
+    throw new Error("You do not own this quiz");
+  }
+
+  if (new Date(endTime) <= new Date(startTime)) {
+    throw new Error("End time must be after start time");
+  }
+
+  return await quizRepository.updateQuiz(quizId, {
+    title,
+    durationMinutes,
+    startTime,
+    endTime,
+    questionsPerAttempt
+  });
+};
+
 module.exports = {
     createQuiz,
     getQuizDetails,
     getQuizzesByClassId,
-    deleteQuiz
+    deleteQuiz,
+    updateQuiz
 };

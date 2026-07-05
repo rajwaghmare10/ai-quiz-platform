@@ -122,6 +122,40 @@ const deleteQuiz = async (quizId) => {
   return result.rows[0];
 };
 
+const updateQuiz = async (
+  quizId,
+  {
+    title,
+    durationMinutes,
+    startTime,
+    endTime,
+    questionsPerAttempt
+  }
+) => {
+
+  const query = `
+    UPDATE quizzes
+    SET
+      title = $1,
+      duration_minutes = $2,
+      start_time = $3,
+      end_time = $4,
+      questions_per_attempt = $5
+    WHERE quiz_id = $6
+    RETURNING *
+  `;
+
+  const result = await pool.query(query, [
+    title,
+    durationMinutes,
+    startTime,
+    endTime,
+    questionsPerAttempt,
+    quizId
+  ]);
+
+  return result.rows[0];
+};
 
 module.exports = {
   createQuiz,
@@ -129,5 +163,6 @@ module.exports = {
   getQuizById,
   decreaseTotalQuestions,
   getQuizzesByClassId,
-  deleteQuiz
+  deleteQuiz,
+  updateQuiz
 };

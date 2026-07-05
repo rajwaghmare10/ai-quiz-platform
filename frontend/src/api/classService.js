@@ -25,12 +25,24 @@ const deleteClass = async (classId) => {
   return response.data;
 };
 
+const joinClass = async (classCode) => {
+  const response = await axiosInstance.post("/classes/join", { classCode });
+  return response.data.data;
+};
+
+const getJoinedClasses = async () => {
+  const response = await axiosInstance.get("/classes/joined");
+  return response.data.data;
+};
+
 const classService = {
   getMyClasses,
   getClassById,
   getClassStudents,
   createClass,
   deleteClass,
+  joinClass,
+  getJoinedClasses
 };
 
 export default classService;
