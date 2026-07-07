@@ -25,12 +25,18 @@ const deleteQuiz = async (quizId) => {
   return response.data;
 };
 
+const updateQuiz = async (quizId, quizData) => {
+  const response = await axiosInstance.put(`/quizzes/${quizId}`, quizData);
+  return response.data.data;
+};
+
 const quizService = {
   createQuiz,
   getQuizzesByClass,
   getQuizById,
   getQuizDetails,
   deleteQuiz,
+  updateQuiz
 };
 
 export default quizService;

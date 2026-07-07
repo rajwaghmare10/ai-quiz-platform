@@ -6,6 +6,10 @@ const quizRepository = require("../repositories/quiz.repository");
 
 const classRepository = require("../repositories/class.repository");
 
+const { GoogleGenAI } = require("@google/genai");
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
 const generateQuestions = async ({
     topic,
     difficulty,
@@ -14,42 +18,132 @@ const generateQuestions = async ({
     teacherId
 }) => {
 
+    if (!topic || !topic.trim()) {
+        throw new Error("Topic is required");
+    }
+
+    if (!["easy", "medium", "hard"].includes(difficulty)) {
+        throw new Error("Difficulty must be easy, medium, or hard");
+    }
+
+    if (!questionCount || questionCount < 1) {
+        throw new Error("Question count must be at least 1");
+    }
+
+    const sourceContent = JSON.stringify({
+        topic,
+        difficulty,
+        questionCount
+    });
+
+    const prompt = `
+Generate exactly ${questionCount} multiple-choice questions on the topic "${topic}" at ${difficulty} difficulty level, suitable for a college-level MCA/BCA exam.
+
+Return ONLY a JSON array, no other text, matching this exact structure:
+[
+  {
+    "question_text": "string",
+    "options": { "1": "string", "2": "string", "3": "string", "4": "string" },
+    "correct_option": 1,
+    "marks": 1
+  }
+]
+
+Rules:
+- correct_option must be an integer from 1 to 4, matching the correct entry in "options".
+- Each question must have exactly 4 distinct, plausible options.
+- marks should be 1 for easy, 1 for medium, 1 for hard difficulty.
+- Do not repeat questions.
+`;
+
+    let rawText;
+
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json"
+            }
+        });
+
+        rawText = response.text;
+
+    } catch (error) {
+
+        await aiGenerationLogRepository.createLog({
+            quizId,
+            teacherId,
+            sourceType: "topic",
+            sourceContent,
+            status: "failed"
+        });
+
+        throw new Error("Failed to generate questions from AI. Please try again.");
+    }
+
+    let parsedQuestions;
+
+    try {
+        parsedQuestions = JSON.parse(rawText);
+    } catch (error) {
+
+        await aiGenerationLogRepository.createLog({
+            quizId,
+            teacherId,
+            sourceType: "topic",
+            sourceContent,
+            status: "failed"
+        });
+
+        throw new Error("AI returned an invalid response. Please try again.");
+    }
+
+    if (!Array.isArray(parsedQuestions) || parsedQuestions.length === 0) {
+
+        await aiGenerationLogRepository.createLog({
+            quizId,
+            teacherId,
+            sourceType: "topic",
+            sourceContent,
+            status: "failed"
+        });
+
+        throw new Error("AI did not return any questions. Please try again.");
+    }
+
+    const validQuestions = parsedQuestions.filter((q) => {
+        return (
+            q.question_text &&
+            q.options &&
+            Object.keys(q.options).length === 4 &&
+            [1, 2, 3, 4].includes(Number(q.correct_option)) &&
+            Number(q.marks) > 0
+        );
+    });
+
+    if (validQuestions.length === 0) {
+
+        await aiGenerationLogRepository.createLog({
+            quizId,
+            teacherId,
+            sourceType: "topic",
+            sourceContent,
+            status: "failed"
+        });
+
+        throw new Error("AI-generated questions were not in a valid format. Please try again.");
+    }
+
     await aiGenerationLogRepository.createLog({
         quizId,
         teacherId,
         sourceType: "topic",
-        sourceContent: JSON.stringify({
-            topic,
-            difficulty,
-            questionCount
-        }),
+        sourceContent,
         status: "success"
     });
 
-    const questions = [];
-
-    for (
-        let i = 1;
-        i <= questionCount;
-        i++
-    ) {
-
-        questions.push({
-            question_text:
-                `${topic} Question ${i} (${difficulty})`,
-            options: {
-                1: "Option A",
-                2: "Option B",
-                3: "Option C",
-                4: "Option D"
-            },
-            correct_option: 1,
-            marks: 1
-        });
-
-    }
-
-    return questions;
+    return validQuestions;
 };
 
 const saveGeneratedQuestions = async ({

@@ -63,10 +63,8 @@ const QuizAttempt = () => {
 
         try {
             await attemptService.submitQuiz(attempt.attempt_id, answersPayload);
-            toast.success("Quiz submitted");
-            navigate(`/student/attempts/${attempt.attempt_id}/result`, {
-                replace: true,
-            });
+            toast.success("Quiz submitted successfully");
+            navigate(`/student/classes/${quiz.class_id}`, { replace: true });
         } catch (err) {
             const message = err?.response?.data?.message || "Failed to submit quiz";
             toast.error(message);

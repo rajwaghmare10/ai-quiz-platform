@@ -22,11 +22,25 @@ const getResult = async (attemptId) => {
   return response.data.data;
 };
 
+const getQuizAttempts = async (quizId) => {
+  const response = await axiosInstance.get(`/attempts/quiz/${quizId}`);
+  return response.data.data;
+};
+
+const exportQuizResults = async (quizId) => {
+  const response = await axiosInstance.get(`/attempts/quiz/${quizId}/export`, {
+    responseType: "blob",
+  });
+  return response.data;
+};
+
 const attemptService = {
   startQuiz,
   getAttemptQuestions,
   submitQuiz,
   getResult,
+  getQuizAttempts,
+  exportQuizResults
 };
 
 export default attemptService;

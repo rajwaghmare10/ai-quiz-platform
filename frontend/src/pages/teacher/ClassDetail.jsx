@@ -68,6 +68,12 @@ const ClassDetail = () => {
     setQuizzes((prev) => [newQuiz, ...prev]);
   };
 
+  const handleUpdateQuiz = (updatedQuiz) => {
+    setQuizzes((prev) =>
+      prev.map((q) => (q.quiz_id === updatedQuiz.quiz_id ? updatedQuiz : q))
+    );
+  };
+
   const handleDeleteQuiz = async (quizId) => {
     try {
       await quizService.deleteQuiz(quizId);
@@ -148,7 +154,7 @@ const ClassDetail = () => {
       )}
       {!quizzesLoading &&
         quizzes.map((quiz) => (
-          <QuizListItem key={quiz.quiz_id} quiz={quiz} onDelete={handleDeleteQuiz} />
+          <QuizListItem key={quiz.quiz_id} quiz={quiz} onDelete={handleDeleteQuiz} onUpdated={handleUpdateQuiz}/>
         ))}
 
       <h3 style={{ marginTop: "24px" }}>Students</h3>

@@ -7,6 +7,8 @@ import ExcelUploadForm from "../../components/teacher/ExcelUploadForm";
 import QuestionCard from "../../components/teacher/QuestionCard";
 import AIGenerateForm from "../../components/teacher/AIGenerateForm";
 import GeneratedQuestionPreview from "../../components/teacher/GeneratedQuestionPreview";
+import attemptService from "../../api/attemptService";
+import AttemptResultItem from "../../components/teacher/AttemptResultItem";
 
 const QuizDetail = () => {
   const { quizId } = useParams();
@@ -15,6 +17,9 @@ const QuizDetail = () => {
   const [error, setError] = useState(null);
   const [previewQuestions, setPreviewQuestions] = useState([]);
   const [savingPreview, setSavingPreview] = useState(false);
+  const [attempts, setAttempts] = useState([]);
+  const [attemptsLoading, setAttemptsLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
 
   const fetchQuiz = async () => {
     setLoading(true);
@@ -29,8 +34,21 @@ const QuizDetail = () => {
     }
   };
 
+  const fetchAttempts = async () => {
+    setAttemptsLoading(true);
+    try {
+      const data = await attemptService.getQuizAttempts(quizId);
+      setAttempts(data);
+    } catch (err) {
+      console.error("Failed to load attempts:", err);
+    } finally {
+      setAttemptsLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchQuiz();
+    fetchAttempts()
   }, [quizId]);
 
   const handleQuestionUpdated = (updatedQuestion) => {
@@ -78,6 +96,25 @@ const QuizDetail = () => {
     }
   };
 
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const blob = await attemptService.exportQuizResults(quizId);
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `${quiz.title}-results.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      toast.error("Failed to export results");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (loading) return <p style={{ padding: "24px" }}>Loading quiz...</p>;
   if (error) return <p style={{ padding: "24px", color: "red" }}>{error}</p>;
   if (!quiz) return null;
@@ -92,6 +129,24 @@ const QuizDetail = () => {
         {quiz.questions_per_attempt} &middot; Total questions:{" "}
         {quiz.total_questions}
       </p>
+
+      <div style={{ marginTop: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h3 style={{ margin: 0 }}>Student Attempts ({attempts.length})</h3>
+        <button onClick={handleExport} disabled={exporting || attempts.length === 0}>
+          {exporting ? "Exporting..." : "Export to Excel"}
+        </button>
+      </div>
+      {attemptsLoading && <p>Loading attempts...</p>}
+      {!attemptsLoading && attempts.length === 0 && (
+        <p>No students have attempted this quiz yet.</p>
+      )}
+      {!attemptsLoading && attempts.length > 0 && (
+        <div style={{ border: "1px solid #ddd", borderRadius: "8px", marginBottom: "20px" }}>
+          {attempts.map((attempt) => (
+            <AttemptResultItem key={attempt.attempt_id} attempt={attempt} />
+          ))}
+        </div>
+      )}
 
       <h3 style={{ marginTop: "20px" }}>Upload Questions (Excel)</h3>
       <ExcelUploadForm quizId={quizId} onUploaded={fetchQuiz} />

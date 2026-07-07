@@ -115,6 +115,16 @@ const startQuiz = async (
     );
 
   if (existingAttempt) {
+    if (existingAttempt.status === "in_progress") {
+      return existingAttempt;
+    }
+
+    throw new Error(
+      "You have already submitted this quiz"
+    );
+  }
+
+  if (existingAttempt) {
     throw new Error(
       "Quiz already started"
     );

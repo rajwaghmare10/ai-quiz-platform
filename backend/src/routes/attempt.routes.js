@@ -40,4 +40,18 @@ router.get(
   attemptController.getResult
 );
 
+router.get(
+  "/quiz/:quizId",
+  authenticate,
+  authorize("teacher"),
+  attemptController.getQuizAttempts
+);
+
+router.get(
+  "/quiz/:quizId/export",
+  authenticate,
+  authorize("teacher"),
+  attemptController.exportQuizResults
+);
+
 module.exports = router;
