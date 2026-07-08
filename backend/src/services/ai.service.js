@@ -13,7 +13,6 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const generateQuestions = async ({
     topic,
     difficulty,
-    questionCount,
     quizId,
     teacherId
 }) => {
@@ -26,9 +25,13 @@ const generateQuestions = async ({
         throw new Error("Difficulty must be easy, medium, or hard");
     }
 
-    if (!questionCount || questionCount < 1) {
-        throw new Error("Question count must be at least 1");
+    const quiz = await quizRepository.getQuizById(quizId);
+
+    if (!quiz) {
+        throw new Error("Quiz not found");
     }
+
+    const questionCount = quiz.questions_per_attempt * 2;
 
     const sourceContent = JSON.stringify({
         topic,
@@ -280,7 +283,152 @@ const saveGeneratedQuestions = async ({
     return savedQuestions;
 };
 
+const fs = require("fs");
+
+const generateQuestionsFromPdf = async ({
+    filePath,
+    difficulty,
+    quizId,
+    teacherId
+}) => {
+
+    if (!filePath) {
+        throw new Error("PDF file is required");
+    }
+
+    if (!["easy", "medium", "hard"].includes(difficulty)) {
+        throw new Error("Difficulty must be easy, medium, or hard");
+    }
+
+    const quiz = await quizRepository.getQuizById(quizId);
+
+    if (!quiz) {
+        throw new Error("Quiz not found");
+    }
+
+    const questionCount = quiz.questions_per_attempt * 2;
+
+    const fileBuffer = fs.readFileSync(filePath);
+    const base64Pdf = fileBuffer.toString("base64");
+
+    const prompt = `
+Based on the content of the attached PDF document (lecture notes), generate exactly ${questionCount} multiple-choice questions at ${difficulty} difficulty level, suitable for a college-level MCA/BCA exam. Base the questions strictly on the material in the document.
+
+Return ONLY a JSON array, no other text, matching this exact structure:
+[
+  {
+    "question_text": "string",
+    "options": { "1": "string", "2": "string", "3": "string", "4": "string" },
+    "correct_option": 1,
+    "marks": 1
+  }
+]
+
+Rules:
+- correct_option must be an integer from 1 to 4, matching the correct entry in "options".
+- Each question must have exactly 4 distinct, plausible options.
+- marks should be 1 for easy, 1 for medium, 1 for hard difficulty.
+- Do not repeat questions.
+`;
+
+    let rawText;
+
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: [
+                {
+                    role: "user",
+                    parts: [
+                        { text: prompt },
+                        {
+                            inlineData: {
+                                mimeType: "application/pdf",
+                                data: base64Pdf
+                            }
+                        }
+                    ]
+                }
+            ],
+            config: {
+                responseMimeType: "application/json"
+            }
+        });
+
+        rawText = response.text;
+
+    } catch (error) {
+
+        await aiGenerationLogRepository.createLog({
+            quizId,
+            teacherId,
+            sourceType: "pdf",
+            sourceContent: filePath,
+            status: "failed"
+        });
+
+        fs.unlinkSync(filePath);
+
+        throw new Error("Failed to generate questions from PDF. Please try again.");
+    }
+
+    let parsedQuestions;
+
+    try {
+        parsedQuestions = JSON.parse(rawText);
+    } catch (error) {
+
+        await aiGenerationLogRepository.createLog({
+            quizId,
+            teacherId,
+            sourceType: "pdf",
+            sourceContent: filePath,
+            status: "failed"
+        });
+
+        fs.unlinkSync(filePath);
+
+        throw new Error("AI returned an invalid response. Please try again.");
+    }
+
+    const validQuestions = (parsedQuestions || []).filter((q) => {
+        return (
+            q.question_text &&
+            q.options &&
+            Object.keys(q.options).length === 4 &&
+            [1, 2, 3, 4].includes(Number(q.correct_option)) &&
+            Number(q.marks) > 0
+        );
+    });
+
+    fs.unlinkSync(filePath);
+
+    if (validQuestions.length === 0) {
+
+        await aiGenerationLogRepository.createLog({
+            quizId,
+            teacherId,
+            sourceType: "pdf",
+            sourceContent: filePath,
+            status: "failed"
+        });
+
+        throw new Error("Could not generate valid questions from this PDF. Please try again.");
+    }
+
+    await aiGenerationLogRepository.createLog({
+        quizId,
+        teacherId,
+        sourceType: "pdf",
+        sourceContent: filePath,
+        status: "success"
+    });
+
+    return validQuestions;
+};
+
 module.exports = {
     generateQuestions,
-    saveGeneratedQuestions
+    saveGeneratedQuestions,
+    generateQuestionsFromPdf
 };

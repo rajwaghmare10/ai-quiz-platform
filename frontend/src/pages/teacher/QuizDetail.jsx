@@ -3,20 +3,25 @@ import { useParams, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import quizService from "../../api/quizService";
 import aiService from "../../api/aiService";
+import attemptService from "../../api/attemptService";
 import ExcelUploadForm from "../../components/teacher/ExcelUploadForm";
 import QuestionCard from "../../components/teacher/QuestionCard";
 import AIGenerateForm from "../../components/teacher/AIGenerateForm";
+import AIPdfGenerateForm from "../../components/teacher/AIPdfGenerateForm";
 import GeneratedQuestionPreview from "../../components/teacher/GeneratedQuestionPreview";
-import attemptService from "../../api/attemptService";
 import AttemptResultItem from "../../components/teacher/AttemptResultItem";
 
 const QuizDetail = () => {
   const { quizId } = useParams();
+
   const [quiz, setQuiz] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   const [previewQuestions, setPreviewQuestions] = useState([]);
+  const [previewSource, setPreviewSource] = useState("AI_TOPIC");
   const [savingPreview, setSavingPreview] = useState(false);
+
   const [attempts, setAttempts] = useState([]);
   const [attemptsLoading, setAttemptsLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
@@ -48,7 +53,7 @@ const QuizDetail = () => {
 
   useEffect(() => {
     fetchQuiz();
-    fetchAttempts()
+    fetchAttempts();
   }, [quizId]);
 
   const handleQuestionUpdated = (updatedQuestion) => {
@@ -67,6 +72,16 @@ const QuizDetail = () => {
     }));
   };
 
+  const handleTopicGenerated = (questions) => {
+    setPreviewQuestions(questions);
+    setPreviewSource("AI_TOPIC");
+  };
+
+  const handlePdfGenerated = (questions, source) => {
+    setPreviewQuestions(questions);
+    setPreviewSource(source);
+  };
+
   const handleRemovePreview = (index) => {
     setPreviewQuestions((prev) => prev.filter((_, i) => i !== index));
   };
@@ -76,7 +91,7 @@ const QuizDetail = () => {
     try {
       const questionsToSave = previewQuestions.map((q) => ({
         ...q,
-        question_source: "AI_TOPIC",
+        question_source: previewSource,
       }));
 
       await aiService.saveGeneratedQuestions({
@@ -151,8 +166,12 @@ const QuizDetail = () => {
       <h3 style={{ marginTop: "20px" }}>Upload Questions (Excel)</h3>
       <ExcelUploadForm quizId={quizId} onUploaded={fetchQuiz} />
 
-      <h3>Generate Questions with AI</h3>
-      <AIGenerateForm quizId={quizId} onGenerated={setPreviewQuestions} />
+      <h3>Generate Questions with AI (Topic)</h3>
+      <AIGenerateForm quizId={quizId} onGenerated={handleTopicGenerated} />
+
+      <h3>Generate Questions with AI (from PDF Notes)</h3>
+      <AIPdfGenerateForm quizId={quizId} onGenerated={handlePdfGenerated} />
+
       <GeneratedQuestionPreview
         questions={previewQuestions}
         onChange={setPreviewQuestions}

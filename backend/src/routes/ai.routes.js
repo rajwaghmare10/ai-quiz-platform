@@ -27,4 +27,14 @@ router.post(
     aiController.saveGeneratedQuestions
 );
 
+const pdfUpload = require("../middlewares/pdfUpload.middleware");
+
+router.post(
+  "/generate-from-pdf",
+  authenticate,
+  authorize("teacher"),
+  pdfUpload.single("file"),
+  aiController.generateFromPdf
+);
+
 module.exports = router;
