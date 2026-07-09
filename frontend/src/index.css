@@ -1,11 +1,15 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@import "tailwindcss";
+
+@theme {
+  --color-primary-50: #eef7ee;
+  --color-primary-100: #d4ecd5;
+  --color-primary-500: #1e8e3e;
+  --color-primary-600: #188038;
+  --color-primary-700: #137333;
 }
 
 body {
-  font-family: "Segoe UI", sans-serif;
+  font-family: "Segoe UI", Roboto, sans-serif;
   background-color: #f4f6f8;
   color: #1a1a1a;
 }

@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
+import { ArrowLeft, Trash2, Plus } from "lucide-react";
 import classService from "../../api/classService";
 import quizService from "../../api/quizService";
 import StudentListItem from "../../components/teacher/StudentListItem";
 import CreateQuizForm from "../../components/teacher/CreateQuizForm";
 import QuizListItem from "../../components/teacher/QuizListItem";
+import Modal from "../../components/layout/Modal";
+import ConfirmDialog from "../../components/layout/ConfirmDialog";
 
 const ClassDetail = () => {
   const { classId } = useParams();
@@ -19,6 +22,10 @@ const ClassDetail = () => {
   const [quizzesLoading, setQuizzesLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(null);
+
+  const [quizModalOpen, setQuizModalOpen] = useState(false);
+  const [deleteClassOpen, setDeleteClassOpen] = useState(false);
+  const [deleteQuizId, setDeleteQuizId] = useState(null);
 
   useEffect(() => {
     fetchClass();
@@ -66,6 +73,7 @@ const ClassDetail = () => {
   const handleCreateQuiz = async (quizData) => {
     const newQuiz = await quizService.createQuiz(quizData);
     setQuizzes((prev) => [newQuiz, ...prev]);
+    setQuizModalOpen(false);
   };
 
   const handleUpdateQuiz = (updatedQuiz) => {
@@ -74,23 +82,20 @@ const ClassDetail = () => {
     );
   };
 
-  const handleDeleteQuiz = async (quizId) => {
+  const confirmDeleteQuiz = async () => {
     try {
-      await quizService.deleteQuiz(quizId);
-      setQuizzes((prev) => prev.filter((q) => q.quiz_id !== quizId));
+      await quizService.deleteQuiz(deleteQuizId);
+      setQuizzes((prev) => prev.filter((q) => q.quiz_id !== deleteQuizId));
       toast.success("Quiz deleted");
     } catch (err) {
       const message = err?.response?.data?.message || "Failed to delete quiz";
       toast.error(message);
+    } finally {
+      setDeleteQuizId(null);
     }
   };
 
   const handleDeleteClass = async () => {
-    const confirmed = window.confirm(
-      `Delete "${classData.class_name}"? This will remove it from your dashboard.`
-    );
-    if (!confirmed) return;
-
     setDeleting(true);
     try {
       await classService.deleteClass(classId);
@@ -100,75 +105,114 @@ const ClassDetail = () => {
       const message = err?.response?.data?.message || "Failed to delete class";
       toast.error(message);
       setDeleting(false);
+      setDeleteClassOpen(false);
     }
   };
 
-  if (loading) return <p style={{ padding: "24px" }}>Loading class...</p>;
-  if (error) return <p style={{ padding: "24px", color: "red" }}>{error}</p>;
+  if (loading) return <p className="text-gray-500">Loading class...</p>;
+  if (error) return <p className="text-red-600">{error}</p>;
   if (!classData) return null;
 
   return (
-    <div style={{ padding: "24px", maxWidth: "600px", margin: "0 auto" }}>
-      <Link to="/teacher/dashboard">&larr; Back to Dashboard</Link>
+    <div>
+      <Link
+        to="/teacher/dashboard"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary-600"
+      >
+        <ArrowLeft size={16} /> Back to Dashboard
+      </Link>
 
       {!classData.is_active && (
-        <p style={{ color: "#a15c00", background: "#fff4e0", padding: "8px 12px", borderRadius: "6px" }}>
+        <div className="mb-4 rounded-lg bg-amber-50 px-4 py-2 text-sm text-amber-700">
           This class has been archived.
-        </p>
+        </div>
       )}
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginTop: "16px" }}>
+      <div className="mb-6 flex items-start justify-between rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
         <div>
-          <h2 style={{ margin: 0 }}>{classData.class_name}</h2>
-          {classData.description && <p>{classData.description}</p>}
+          <h1 className="text-xl font-semibold text-gray-800">{classData.class_name}</h1>
+          {classData.description && (
+            <p className="mt-1 text-sm text-gray-500">{classData.description}</p>
+          )}
+          <div className="mt-3 flex flex-wrap gap-2">
+            <span className="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">
+              Code: {classData.class_code}
+            </span>
+            <span className="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">
+              {classData.total_students} students
+            </span>
+          </div>
         </div>
-
         <button
-          onClick={handleDeleteClass}
-          disabled={deleting}
-          style={{ color: "red" }}
+          onClick={() => setDeleteClassOpen(true)}
+          className="flex items-center gap-1 rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
         >
-          {deleting ? "Deleting..." : "Delete Class"}
+          <Trash2 size={15} /> Delete
         </button>
       </div>
 
-      <div style={{ marginTop: "16px" }}>
-        <p>
-          <strong>Class Code:</strong> {classData.class_code}
-        </p>
-        <p>
-          <strong>Teacher:</strong> {classData.teacher_name}
-        </p>
-        <p>
-          <strong>Students Enrolled:</strong> {classData.total_students}
-        </p>
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-gray-800">Quizzes</h2>
+        <button
+          onClick={() => setQuizModalOpen(true)}
+          className="flex items-center gap-1 rounded-lg bg-primary-600 px-3 py-2 text-sm font-medium text-white hover:bg-primary-700"
+        >
+          <Plus size={16} /> New Quiz
+        </button>
       </div>
 
-      <h3 style={{ marginTop: "24px" }}>Create a Quiz</h3>
-      <CreateQuizForm classId={classId} onCreate={handleCreateQuiz} />
-
-      <h3>Quizzes</h3>
-      {quizzesLoading && <p>Loading quizzes...</p>}
+      {quizzesLoading && <p className="text-sm text-gray-500">Loading quizzes...</p>}
       {!quizzesLoading && quizzes.length === 0 && (
-        <p>No quizzes created for this class yet.</p>
+        <p className="text-sm text-gray-500">No quizzes created for this class yet.</p>
       )}
-      {!quizzesLoading &&
-        quizzes.map((quiz) => (
-          <QuizListItem key={quiz.quiz_id} quiz={quiz} onDelete={handleDeleteQuiz} onUpdated={handleUpdateQuiz}/>
-        ))}
+      <div className="mb-8 space-y-3">
+        {!quizzesLoading &&
+          quizzes.map((quiz) => (
+            <QuizListItem
+              key={quiz.quiz_id}
+              quiz={quiz}
+              onDelete={setDeleteQuizId}
+              onUpdated={handleUpdateQuiz}
+            />
+          ))}
+      </div>
 
-      <h3 style={{ marginTop: "24px" }}>Students</h3>
-      {studentsLoading && <p>Loading students...</p>}
+      <h2 className="mb-3 text-lg font-semibold text-gray-800">Students</h2>
+      {studentsLoading && <p className="text-sm text-gray-500">Loading students...</p>}
       {!studentsLoading && students.length === 0 && (
-        <p>No students have joined this class yet.</p>
+        <p className="text-sm text-gray-500">No students have joined this class yet.</p>
       )}
       {!studentsLoading && students.length > 0 && (
-        <div style={{ border: "1px solid #ddd", borderRadius: "8px" }}>
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
           {students.map((student) => (
             <StudentListItem key={student.user_id} student={student} />
           ))}
         </div>
       )}
+
+      <Modal isOpen={quizModalOpen} onClose={() => setQuizModalOpen(false)} title="Create a Quiz">
+        <CreateQuizForm classId={classId} onCreate={handleCreateQuiz} />
+      </Modal>
+
+      <ConfirmDialog
+        isOpen={deleteClassOpen}
+        onClose={() => setDeleteClassOpen(false)}
+        onConfirm={handleDeleteClass}
+        title="Delete Class"
+        message={`Are you sure you want to delete "${classData.class_name}"? This will remove it from your dashboard.`}
+        confirmLabel={deleting ? "Deleting..." : "Delete"}
+        danger
+      />
+
+      <ConfirmDialog
+        isOpen={!!deleteQuizId}
+        onClose={() => setDeleteQuizId(null)}
+        onConfirm={confirmDeleteQuiz}
+        title="Delete Quiz"
+        message="Are you sure you want to delete this quiz? This cannot be undone."
+        confirmLabel="Delete"
+        danger
+      />
     </div>
   );
 };

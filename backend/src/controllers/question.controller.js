@@ -11,6 +11,7 @@ const uploadExcelQuestions = async (
     const questions =
       await questionService.processExcelQuestions(
         req.params.quizId,
+        req.user.userId,
         req.file.path
       );
 

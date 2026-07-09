@@ -3,12 +3,13 @@ import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
 import TeacherDashboard from "../pages/teacher/TeacherDashboard";
 import ClassDetail from "../pages/teacher/ClassDetail";
-import StudentDashboard from "../pages/student/StudentDashboard";
-import ProtectedRoute from "../components/layout/ProtectedRoute";
-import RoleRoute from "../components/layout/RoleRoute";
 import QuizDetail from "../pages/teacher/QuizDetail";
+import StudentDashboard from "../pages/student/StudentDashboard";
 import StudentClassDetail from "../pages/student/StudentClassDetail";
 import QuizAttempt from "../pages/student/QuizAttempt";
+import ProtectedRoute from "../components/layout/ProtectedRoute";
+import RoleRoute from "../components/layout/RoleRoute";
+import AppLayout from "../components/layout/AppLayout";
 
 const AppRoutes = () => {
   return (
@@ -17,16 +18,18 @@ const AppRoutes = () => {
       <Route path="/register" element={<RegisterPage />} />
 
       <Route element={<ProtectedRoute />}>
-        <Route element={<RoleRoute allowedRoles={["teacher"]} />}>
-          <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
-          <Route path="/teacher/classes/:classId" element={<ClassDetail />} />
-          <Route path="/teacher/quizzes/:quizId" element={<QuizDetail />} />
-        </Route>
+        <Route element={<AppLayout />}>
+          <Route element={<RoleRoute allowedRoles={["teacher"]} />}>
+            <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
+            <Route path="/teacher/classes/:classId" element={<ClassDetail />} />
+            <Route path="/teacher/quizzes/:quizId" element={<QuizDetail />} />
+          </Route>
 
-        <Route element={<RoleRoute allowedRoles={["student"]} />}>
-          <Route path="/student/dashboard" element={<StudentDashboard />} />
-          <Route path="/student/classes/:classId" element={<StudentClassDetail />} />
-          <Route path="/student/attempts/:quizId" element={<QuizAttempt />} />
+          <Route element={<RoleRoute allowedRoles={["student"]} />}>
+            <Route path="/student/dashboard" element={<StudentDashboard />} />
+            <Route path="/student/classes/:classId" element={<StudentClassDetail />} />
+            <Route path="/student/attempts/:quizId" element={<QuizAttempt />} />
+          </Route>
         </Route>
       </Route>
 

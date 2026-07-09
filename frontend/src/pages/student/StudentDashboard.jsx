@@ -1,36 +1,56 @@
+import { useOutletContext } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import useJoinedClasses from "../../hooks/useJoinedClasses";
 import ClassCard from "../../components/common/ClassCard";
 import JoinClassForm from "../../components/student/JoinClassForm";
+import Modal from "../../components/layout/Modal";
 
 const StudentDashboard = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { classes, loading, error, refetch } = useJoinedClasses();
+  const { search, modalOpen, setModalOpen } = useOutletContext();
+
+  const filteredClasses = classes.filter((c) =>
+    c.class_name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const handleJoined = () => {
+    refetch();
+    setModalOpen(false);
+  };
 
   return (
-    <div style={{ padding: "24px", maxWidth: "600px", margin: "0 auto" }}>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <h2>Welcome, {user?.name}</h2>
-        <button onClick={logout}>Logout</button>
-      </div>
+    <div>
+      <h1 className="mb-6 text-2xl font-semibold text-gray-800">
+        Welcome, {user?.name}
+      </h1>
 
-      <h3>Join a Class</h3>
-      <JoinClassForm onJoined={refetch} />
+      {loading && <p className="text-gray-500">Loading classes...</p>}
+      {error && <p className="text-red-600">{error}</p>}
 
-      <h3>Your Classes</h3>
-      {loading && <p>Loading classes...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {!loading && !error && classes.length === 0 && (
-        <p>You haven't joined any classes yet.</p>
+      {!loading && !error && filteredClasses.length === 0 && (
+        <p className="text-gray-500">
+          {search ? "No classes match your search." : "You haven't joined any classes yet."}
+        </p>
       )}
-      {!loading &&
-        classes.map((classItem) => (
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {filteredClasses.map((classItem) => (
           <ClassCard
             key={classItem.class_id}
             classItem={classItem}
             linkTo={`/student/classes/${classItem.class_id}`}
           />
         ))}
+      </div>
+
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title="Join a Class"
+      >
+        <JoinClassForm onJoined={handleJoined} />
+      </Modal>
     </div>
   );
 };

@@ -7,8 +7,28 @@ const classRepository = require("../repositories/class.repository");
 
 const processExcelQuestions = async (
   quizId,
+  teacherId,
   filePath
 ) => {
+
+  const quiz = await quizRepository.getQuizById(quizId);
+
+  if (!quiz) {
+    fs.unlinkSync(filePath);
+    throw new Error("Quiz not found");
+  }
+
+  const classData = await classRepository.findClassById(quiz.class_id);
+
+  if (classData.teacher_id !== teacherId) {
+    fs.unlinkSync(filePath);
+    throw new Error("Access denied");
+  }
+
+  if (new Date() >= new Date(quiz.start_time)) {
+    fs.unlinkSync(filePath);
+    throw new Error("Cannot add questions after the quiz has started");
+  }
 
   const workbook = XLSX.readFile(filePath);
 
@@ -88,6 +108,12 @@ const updateQuestion = async (
     );
   }
 
+  if (new Date() >= new Date(quiz.start_time)) {
+    throw new Error(
+      "Cannot edit questions after the quiz has started"
+    );
+  }
+
   if (!questionText) {
     throw new Error(
       "Question text is required"
@@ -164,6 +190,12 @@ const deleteQuestion = async (
   ) {
     throw new Error(
       "Access denied"
+    );
+  }
+
+  if (new Date() >= new Date(quiz.start_time)) {
+    throw new Error(
+      "Cannot delete questions after the quiz has started"
     );
   }
 

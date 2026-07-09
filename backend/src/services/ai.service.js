@@ -181,9 +181,13 @@ const saveGeneratedQuestions = async ({
     if (foundClass.teacher_id !== teacherId) {
         throw new Error("You do not own this quiz");
     }
+
+    if (new Date() >= new Date(quiz.start_time)) {
+        throw new Error("Cannot add questions after the quiz has started");
+    }
     
     for (
-        const question
+        const question      
         of questions
     ) {
 
