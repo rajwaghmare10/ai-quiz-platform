@@ -30,16 +30,25 @@ const JoinClassForm = ({ onJoined }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginBottom: "24px" }}>
-      <label>Class Code</label>
-      <input
-        type="text"
-        value={classCode}
-        onChange={(e) => setClassCode(e.target.value)}
-        placeholder="e.g. 7LHSPY"
-        style={{ marginLeft: "8px" }}
-      />
-      <button type="submit" disabled={joining} style={{ marginLeft: "8px" }}>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label className="mb-1 block text-sm font-medium text-gray-700">
+          Class Code
+        </label>
+        <input
+          type="text"
+          value={classCode}
+          onChange={(e) => setClassCode(e.target.value)}
+          placeholder="e.g. 7LHSPY"
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm uppercase tracking-wider outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+        />
+      </div>
+
+      <button
+        type="submit"
+        disabled={joining}
+        className="w-full rounded-lg bg-primary-600 py-2.5 text-sm font-medium text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
+      >
         {joining ? "Joining..." : "Join Class"}
       </button>
     </form>

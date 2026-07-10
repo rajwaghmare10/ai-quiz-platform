@@ -1,8 +1,18 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { Pencil, Trash2, Check } from "lucide-react";
 import questionService from "../../api/questionService";
 
-const QuestionCard = ({ question, onUpdated, onDeleted }) => {
+const inputClass =
+  "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100";
+
+const SOURCE_LABELS = {
+  EXCEL: { label: "Excel", color: "bg-blue-100 text-blue-700" },
+  AI_TOPIC: { label: "AI · Topic", color: "bg-purple-100 text-purple-700" },
+  AI_PDF: { label: "AI · PDF", color: "bg-amber-100 text-amber-700" },
+};
+
+const QuestionCard = ({ question, onUpdated, onDeleted, onDeleteRequest }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [questionText, setQuestionText] = useState(question.question_text);
   const [options, setOptions] = useState({ ...question.options });
@@ -23,70 +33,76 @@ const QuestionCard = ({ question, onUpdated, onDeleted }) => {
       onUpdated(updated);
       setIsEditing(false);
     } catch (error) {
-      const message =
-        error?.response?.data?.message || "Failed to update question";
+      const message = error?.response?.data?.message || "Failed to update question";
       toast.error(message);
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDelete = async () => {
-    const confirmed = window.confirm("Delete this question?");
-    if (!confirmed) return;
-
-    try {
-      await questionService.deleteQuestion(question.question_id);
-      toast.success("Question deleted");
-      onDeleted(question.question_id);
-    } catch (error) {
-      const message =
-        error?.response?.data?.message || "Failed to delete question";
-      toast.error(message);
-    }
+  const sourceTag = SOURCE_LABELS[question.question_source] || {
+    label: question.question_source,
+    color: "bg-gray-100 text-gray-600",
   };
 
   if (isEditing) {
     return (
-      <div style={{ border: "1px solid #ccc", borderRadius: "8px", padding: "12px", marginBottom: "10px" }}>
+      <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
         <input
           type="text"
           value={questionText}
           onChange={(e) => setQuestionText(e.target.value)}
-          style={{ width: "100%", marginBottom: "8px" }}
+          className={`${inputClass} mb-3`}
         />
 
-        {[1, 2, 3, 4].map((num) => (
-          <div key={num} style={{ display: "flex", alignItems: "center", marginBottom: "4px" }}>
-            <input
-              type="radio"
-              checked={Number(correctOption) === num}
-              onChange={() => setCorrectOption(num)}
-            />
-            <input
-              type="text"
-              value={options[num] || ""}
-              onChange={(e) => setOptions({ ...options, [num]: e.target.value })}
-              style={{ marginLeft: "6px", flex: 1 }}
-            />
-          </div>
-        ))}
+        <div className="space-y-2">
+          {[1, 2, 3, 4].map((num) => (
+            <label
+              key={num}
+              className={`flex items-center gap-2 rounded-lg border px-3 py-2 ${
+                Number(correctOption) === num
+                  ? "border-primary-400 bg-primary-50"
+                  : "border-gray-200"
+              }`}
+            >
+              <input
+                type="radio"
+                checked={Number(correctOption) === num}
+                onChange={() => setCorrectOption(num)}
+                className="accent-primary-600"
+              />
+              <input
+                type="text"
+                value={options[num] || ""}
+                onChange={(e) => setOptions({ ...options, [num]: e.target.value })}
+                className="flex-1 bg-transparent text-sm outline-none"
+              />
+            </label>
+          ))}
+        </div>
 
-        <div style={{ marginTop: "6px" }}>
-          <label>Marks: </label>
+        <div className="mt-3 flex items-center gap-2">
+          <label className="text-sm text-gray-600">Marks</label>
           <input
             type="number"
             value={marks}
             onChange={(e) => setMarks(e.target.value)}
-            style={{ width: "60px" }}
+            className="w-20 rounded-lg border border-gray-300 px-2 py-1 text-sm outline-none focus:border-primary-500"
           />
         </div>
 
-        <div style={{ marginTop: "8px" }}>
-          <button onClick={handleSave} disabled={saving}>
+        <div className="mt-4 flex gap-2">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-60"
+          >
             {saving ? "Saving..." : "Save"}
           </button>
-          <button onClick={() => setIsEditing(false)} style={{ marginLeft: "8px" }}>
+          <button
+            onClick={() => setIsEditing(false)}
+            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
             Cancel
           </button>
         </div>
@@ -95,28 +111,48 @@ const QuestionCard = ({ question, onUpdated, onDeleted }) => {
   }
 
   return (
-    <div style={{ border: "1px solid #ddd", borderRadius: "8px", padding: "12px", marginBottom: "10px" }}>
-      <p style={{ fontWeight: 500 }}>{question.question_text}</p>
-      <ul style={{ margin: "6px 0", paddingLeft: "20px" }}>
-        {[1, 2, 3, 4].map((num) => (
-          <li
-            key={num}
-            style={{
-              fontWeight: Number(question.correct_option) === num ? "bold" : "normal",
-              color: Number(question.correct_option) === num ? "green" : "inherit",
-            }}
+    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="mb-2 flex items-start justify-between gap-2">
+        <p className="font-medium text-gray-800">{question.question_text}</p>
+        <span className={`shrink-0 rounded-md px-2 py-0.5 text-xs font-medium ${sourceTag.color}`}>
+          {sourceTag.label}
+        </span>
+      </div>
+
+      <div className="space-y-1.5">
+        {[1, 2, 3, 4].map((num) => {
+          const isCorrect = Number(question.correct_option) === num;
+          return (
+            <div
+              key={num}
+              className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm ${
+                isCorrect ? "bg-primary-50 text-primary-700" : "text-gray-600"
+              }`}
+            >
+              {isCorrect && <Check size={14} />}
+              <span>{question.options[num]}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-3 flex items-center justify-between">
+        <span className="text-xs text-gray-400">Marks: {question.marks}</span>
+        <div className="flex gap-1">
+          <button
+            onClick={() => setIsEditing(true)}
+            className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-primary-600"
           >
-            {question.options[num]}
-          </li>
-        ))}
-      </ul>
-      <p style={{ fontSize: "12px", color: "#888" }}>
-        Marks: {question.marks} &middot; Source: {question.question_source}
-      </p>
-      <button onClick={() => setIsEditing(true)}>Edit</button>
-      <button onClick={handleDelete} style={{ marginLeft: "8px" }}>
-        Delete
-      </button>
+            <Pencil size={15} />
+          </button>
+          <button
+            onClick={() => onDeleteRequest(question.question_id)}
+            className="rounded-full p-2 text-gray-400 hover:bg-red-50 hover:text-red-600"
+          >
+            <Trash2 size={15} />
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
