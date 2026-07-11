@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Clock, ListChecks } from "lucide-react";
+import { ArrowLeft, Clock, ListChecks, User } from "lucide-react";
 import classService from "../../api/classService";
 import quizService from "../../api/quizService";
+import { getClassTheme } from "../../utils/classTheme";
 
 const STATUS_STYLES = {
   Active: "bg-primary-100 text-primary-700",
@@ -61,6 +62,9 @@ const StudentClassDetail = () => {
   if (error) return <p className="text-red-600">{error}</p>;
   if (!classData) return null;
 
+  const theme = getClassTheme(classData.class_id);
+  const activeCount = quizzes.filter((q) => getQuizStatus(q) === "Active").length;
+
   return (
     <div>
       <Link
@@ -70,18 +74,40 @@ const StudentClassDetail = () => {
         <ArrowLeft size={16} /> Back to Dashboard
       </Link>
 
-      <div className="mb-6 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-        <h1 className="text-xl font-semibold text-gray-800">{classData.class_name}</h1>
-        {classData.description && (
-          <p className="mt-1 text-sm text-gray-500">{classData.description}</p>
-        )}
-        <p className="mt-2 text-sm text-gray-500">Teacher: {classData.teacher_name}</p>
+      {/* Hero header */}
+      <div className="mb-6 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className={`relative bg-gradient-to-br ${theme.gradient} px-6 py-8`}>
+          <h1 className="text-2xl font-bold text-white">{classData.class_name}</h1>
+          {classData.description && (
+            <p className="mt-1 text-sm text-white/85">{classData.description}</p>
+          )}
+
+          <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10" />
+          <div className="pointer-events-none absolute -right-2 bottom-0 h-16 w-16 rounded-full bg-white/10" />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 px-6 py-4">
+          <span className="flex items-center gap-1.5 text-sm text-gray-500">
+            <User size={15} /> {classData.teacher_name}
+          </span>
+          <span className="flex items-center gap-1.5 text-sm text-gray-500">
+            <ListChecks size={15} /> {quizzes.length} quizzes
+          </span>
+          {activeCount > 0 && (
+            <span className="rounded-md bg-primary-100 px-2 py-1 text-xs font-medium text-primary-700">
+              {activeCount} active now
+            </span>
+          )}
+        </div>
       </div>
 
       <h2 className="mb-3 text-lg font-semibold text-gray-800">Quizzes</h2>
+
       {quizzesLoading && <p className="text-sm text-gray-500">Loading quizzes...</p>}
       {!quizzesLoading && quizzes.length === 0 && (
-        <p className="text-sm text-gray-500">No quizzes available in this class yet.</p>
+        <div className="rounded-xl border border-dashed border-gray-300 py-10 text-center">
+          <p className="text-sm text-gray-500">No quizzes available in this class yet.</p>
+        </div>
       )}
 
       <div className="space-y-3">
@@ -92,9 +118,10 @@ const StudentClassDetail = () => {
 
             const card = (
               <div
-                className={`rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition ${
-                  isActive ? "hover:shadow-md" : "opacity-70"
-                }`}
+                className={`rounded-xl border bg-white p-4 shadow-sm transition ${isActive
+                    ? "border-primary-200 hover:shadow-md"
+                    : "border-gray-200 opacity-70"
+                  }`}
               >
                 <div className="flex items-start justify-between">
                   <h4 className="font-medium text-gray-800">{quiz.title}</h4>
@@ -114,6 +141,11 @@ const StudentClassDetail = () => {
                   {new Date(quiz.start_time).toLocaleString()} &rarr;{" "}
                   {new Date(quiz.end_time).toLocaleString()}
                 </p>
+                {isActive && (
+                  <div className="mt-3 flex items-center gap-1 text-sm font-medium text-primary-600">
+                    Start Quiz &rarr;
+                  </div>
+                )}
               </div>
             );
 

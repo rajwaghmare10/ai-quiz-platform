@@ -119,10 +119,13 @@ const getJoinedClasses = async (studentId) => {
 
     const query = `
         SELECT
-            c.*
+            c.*,
+            u.name AS teacher_name
         FROM class_members cm
         JOIN classes c
         ON cm.class_id = c.class_id
+        JOIN users u
+        ON c.teacher_id = u.user_id
         WHERE cm.student_id = $1
         AND c.is_active = true
         ORDER BY c.created_at DESC
@@ -230,6 +233,17 @@ const deactivateClass = async (classId) => {
   return result.rows[0];
 };
 
+const removeStudentFromClass = async (classId, studentId) => {
+  const query = `
+    DELETE FROM class_members
+    WHERE class_id = $1 AND student_id = $2
+    RETURNING *
+  `;
+
+  const result = await pool.query(query, [classId, studentId]);
+  return result.rows[0];
+};
+
 module.exports = {
     createClass,
     getClassesByTeacherId,
@@ -241,5 +255,6 @@ module.exports = {
     findClassById,
     isStudentInClass,
     getClassStudents,
-    deactivateClass
+    deactivateClass,
+    removeStudentFromClass
 };

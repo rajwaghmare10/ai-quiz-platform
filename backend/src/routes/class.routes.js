@@ -47,7 +47,7 @@ router.get(
 router.get(
   "/:classId/students",
   authenticate,
-  authorize("teacher"),
+  authorize("teacher", "student"),
   classController.getClassStudents
 );
 
@@ -63,6 +63,13 @@ router.delete(
   authenticate,
   authorize("teacher"),
   classController.deleteClass
+);
+
+router.delete(
+  "/:classId/leave",
+  authenticate,
+  authorize("student"),
+  classController.leaveClass
 );
 
 module.exports = router;

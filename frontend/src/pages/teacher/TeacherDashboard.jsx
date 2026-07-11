@@ -1,14 +1,20 @@
+import { useState } from "react";
 import { useOutletContext } from "react-router-dom";
+import toast from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
 import useClasses from "../../hooks/useClasses";
 import ClassCard from "../../components/common/ClassCard";
 import CreateClassForm from "../../components/teacher/CreateClassForm";
 import Modal from "../../components/layout/Modal";
+import ConfirmDialog from "../../components/layout/ConfirmDialog";
+import classService from "../../api/classService";
 
 const TeacherDashboard = () => {
   const { user } = useAuth();
-  const { classes, loading, error, addClass } = useClasses();
+  const { classes, loading, error, addClass, refetch } = useClasses();
   const { search, modalOpen, setModalOpen } = useOutletContext();
+  const [deleteClassId, setDeleteClassId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const filteredClasses = classes.filter((c) =>
     c.class_name.toLowerCase().includes(search.toLowerCase())
@@ -17,6 +23,21 @@ const TeacherDashboard = () => {
   const handleCreate = async (data) => {
     await addClass(data);
     setModalOpen(false);
+  };
+
+  const confirmDeleteClass = async () => {
+    setDeleting(true);
+    try {
+      await classService.deleteClass(deleteClassId);
+      toast.success("Class deleted");
+      refetch();
+    } catch (err) {
+      const message = err?.response?.data?.message || "Failed to delete class";
+      toast.error(message);
+    } finally {
+      setDeleting(false);
+      setDeleteClassId(null);
+    }
   };
 
   return (
@@ -40,6 +61,7 @@ const TeacherDashboard = () => {
             key={classItem.class_id}
             classItem={classItem}
             linkTo={`/teacher/classes/${classItem.class_id}`}
+            onDeleted={setDeleteClassId}
           />
         ))}
       </div>
@@ -51,6 +73,16 @@ const TeacherDashboard = () => {
       >
         <CreateClassForm onCreate={handleCreate} />
       </Modal>
+
+      <ConfirmDialog
+        isOpen={!!deleteClassId}
+        onClose={() => setDeleteClassId(null)}
+        onConfirm={confirmDeleteClass}
+        title="Delete Class"
+        message="Are you sure you want to delete this class? This will remove it from your dashboard."
+        confirmLabel={deleting ? "Deleting..." : "Delete"}
+        danger
+      />
     </div>
   );
 };

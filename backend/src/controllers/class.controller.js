@@ -143,7 +143,11 @@ const getClassDetails = async (
 
 const getClassStudents = async (req, res) => {
   try {
-    const students = await classService.getClassStudents(req.params.classId);
+    const students = await classService.getClassStudents(
+      req.params.classId,
+      req.user.userId,
+      req.user.role
+    );
     return res.status(200).json({ success: true, data: students });
   } catch (error) {
     return res.status(400).json({ success: false, message: error.message });
@@ -165,6 +169,21 @@ const deleteClass = async (req, res) => {
   }
 };
 
+const leaveClass = async (req, res) => {
+  try {
+    await classService.leaveClass(req.params.classId, req.user.userId);
+    return res.status(200).json({
+      success: true,
+      message: "Left class successfully"
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 module.exports = {
   createClass,
   getMyClasses,
@@ -172,5 +191,6 @@ module.exports = {
   getJoinedClasses,
   getClassDetails,
   getClassStudents,
-  deleteClass
+  deleteClass,
+  leaveClass
 };

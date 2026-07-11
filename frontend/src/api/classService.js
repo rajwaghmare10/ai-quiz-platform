@@ -35,6 +35,11 @@ const getJoinedClasses = async () => {
   return response.data.data;
 };
 
+const leaveClass = async (classId) => {
+  const response = await axiosInstance.delete(`/classes/${classId}/leave`);
+  return response.data;
+};
+
 const classService = {
   getMyClasses,
   getClassById,
@@ -42,7 +47,8 @@ const classService = {
   createClass,
   deleteClass,
   joinClass,
-  getJoinedClasses
+  getJoinedClasses,
+  leaveClass
 };
 
 export default classService;

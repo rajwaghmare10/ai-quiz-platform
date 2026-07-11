@@ -19,6 +19,10 @@ const StudentDashboard = () => {
     setModalOpen(false);
   };
 
+  const handleLeft = () => {
+    refetch();
+  };
+
   return (
     <div>
       <h1 className="mb-6 text-2xl font-semibold text-gray-800">
@@ -40,6 +44,7 @@ const StudentDashboard = () => {
             key={classItem.class_id}
             classItem={classItem}
             linkTo={`/student/classes/${classItem.class_id}`}
+            onLeft={handleLeft}
           />
         ))}
       </div>
