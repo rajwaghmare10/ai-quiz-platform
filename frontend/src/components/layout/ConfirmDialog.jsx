@@ -3,7 +3,7 @@ import Modal from "./Modal";
 const ConfirmDialog = ({ isOpen, onClose, onConfirm, title, message, confirmLabel = "Confirm", danger = false }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title}>
-      <p className="text-sm text-gray-600">{message}</p>
+      <p className="text-sm text-gray-700">{message}</p>
       <div className="mt-5 flex justify-end gap-2">
         <button
           onClick={onClose}

@@ -10,10 +10,10 @@ const StudentListItem = ({ student }) => {
         </div>
         <div>
           <p className="text-sm font-medium text-gray-800">{student.name}</p>
-          <p className="text-xs text-gray-500">{student.email}</p>
+          <p className="text-xs text-gray-600">{student.email}</p>
         </div>
       </div>
-      <p className="text-xs text-gray-400">Joined {joinedDate}</p>
+      <p className="text-xs text-gray-500">Joined {joinedDate}</p>
     </div>
   );
 };

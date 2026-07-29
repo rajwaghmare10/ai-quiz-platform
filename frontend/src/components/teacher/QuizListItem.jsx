@@ -146,7 +146,7 @@ const QuizListItem = ({ quiz, onDelete, onUpdated }) => {
     <div className="flex items-start justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md">
       <Link to={`/teacher/quizzes/${quiz.quiz_id}`} className="flex-1">
         <h4 className="font-medium text-gray-800">{quiz.title}</h4>
-        <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-gray-500">
+        <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-gray-600">
           <span className="flex items-center gap-1">
             <Clock size={13} /> {quiz.duration_minutes} min
           </span>
@@ -154,7 +154,7 @@ const QuizListItem = ({ quiz, onDelete, onUpdated }) => {
             <ListChecks size={13} /> {quiz.questions_per_attempt} of {quiz.total_questions}
           </span>
         </div>
-        <p className="mt-1 text-xs text-gray-400">
+        <p className="mt-1 text-xs text-gray-500">
           {startDisplay} &rarr; {endDisplay}
         </p>
       </Link>
@@ -162,13 +162,13 @@ const QuizListItem = ({ quiz, onDelete, onUpdated }) => {
       <div className="ml-3 flex gap-1">
         <button
           onClick={handleEditClick}
-          className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-primary-600"
+          className="rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-primary-600"
         >
           <Pencil size={16} />
         </button>
         <button
           onClick={handleDelete}
-          className="rounded-full p-2 text-gray-400 hover:bg-red-50 hover:text-red-600"
+          className="rounded-full p-2 text-gray-500 hover:bg-red-50 hover:text-red-600"
         >
           <Trash2 size={16} />
         </button>

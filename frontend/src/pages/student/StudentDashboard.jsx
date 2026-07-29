@@ -29,11 +29,11 @@ const StudentDashboard = () => {
         Welcome, {user?.name}
       </h1>
 
-      {loading && <p className="text-gray-500">Loading classes...</p>}
+      {loading && <p className="text-gray-600">Loading classes...</p>}
       {error && <p className="text-red-600">{error}</p>}
 
       {!loading && !error && filteredClasses.length === 0 && (
-        <p className="text-gray-500">
+        <p className="text-gray-600">
           {search ? "No classes match your search." : "You haven't joined any classes yet."}
         </p>
       )}

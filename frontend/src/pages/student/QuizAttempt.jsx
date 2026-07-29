@@ -24,8 +24,10 @@ const QuizAttempt = () => {
   const [error, setError] = useState(null);
 
   const [submitConfirmOpen, setSubmitConfirmOpen] = useState(false);
+  const [tabWarnings, setTabWarnings] = useState(0);
 
   const hasFetchedQuiz = useRef(false);
+  const tabWarningsRef = useRef(0);
 
   useEffect(() => {
     if (hasFetchedQuiz.current) return;
@@ -46,6 +48,21 @@ const QuizAttempt = () => {
     }
   };
 
+  const enterFullscreen = () => {
+    const el = document.documentElement;
+    if (el.requestFullscreen) {
+      el.requestFullscreen().catch(() => {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+  };
+
+  const exitFullscreen = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen?.().catch(() => {});
+    }
+  };
+
   const handleStartQuiz = async () => {
     setStarting(true);
     try {
@@ -54,6 +71,8 @@ const QuizAttempt = () => {
 
       const questionsData = await attemptService.getAttemptQuestions(attemptData.attempt_id);
       setQuestions(questionsData);
+
+      enterFullscreen();
     } catch (err) {
       const message = err?.response?.data?.message || "Failed to start quiz";
       toast.error(message);
@@ -64,6 +83,14 @@ const QuizAttempt = () => {
 
   const handleSelect = (questionId, optionNum) => {
     setAnswers((prev) => ({ ...prev, [questionId]: optionNum }));
+  };
+
+  const preventCopy = (e) => {
+    e.preventDefault();
+  };
+
+  const preventContextMenu = (e) => {
+    e.preventDefault();
   };
 
   const performSubmit = useCallback(async () => {
@@ -77,6 +104,7 @@ const QuizAttempt = () => {
 
     try {
       await attemptService.submitQuiz(attempt.attempt_id, answersPayload);
+      exitFullscreen();
       toast.success("Quiz submitted successfully");
       navigate(`/student/classes/${quiz.class_id}`, { replace: true });
     } catch (err) {
@@ -91,6 +119,62 @@ const QuizAttempt = () => {
     performSubmit();
   }, [performSubmit]);
 
+  const registerViolation = useCallback(
+    (reasonText) => {
+      tabWarningsRef.current += 1;
+      const next = tabWarningsRef.current;
+      setTabWarnings(next);
+
+      if (next >= 3) {
+        if (attempt) {
+          toast.error("Violation limit reached. Submitting quiz automatically.");
+          performSubmit();
+        } else {
+          toast.error("Violation limit reached. You cannot proceed further.");
+        }
+      } else {
+        toast.error(`Warning ${next} of 3: ${reasonText}`, { duration: 5000 });
+      }
+    },
+    [attempt, performSubmit]
+  );
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        registerViolation("Do not switch tabs or minimize the window.");
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [registerViolation]);
+
+  useEffect(() => {
+    if (!attempt) return;
+
+    const handleBlur = () => {
+      registerViolation("Do not switch to another window or application.");
+    };
+
+    window.addEventListener("blur", handleBlur);
+    return () => window.removeEventListener("blur", handleBlur);
+  }, [attempt, registerViolation]);
+
+  useEffect(() => {
+    if (!attempt) return;
+
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement) {
+        registerViolation("Please stay in fullscreen mode during the quiz.");
+        enterFullscreen();
+      }
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, [attempt, registerViolation]);
+
   const requestSubmit = () => setSubmitConfirmOpen(true);
 
   const confirmSubmit = () => {
@@ -98,7 +182,7 @@ const QuizAttempt = () => {
     performSubmit();
   };
 
-  if (quizLoading) return <p className="text-gray-500">Loading quiz...</p>;
+  if (quizLoading) return <p className="text-gray-600">Loading quiz...</p>;
   if (error) return <p className="text-red-600">{error}</p>;
   if (!quiz) return null;
 
@@ -108,18 +192,23 @@ const QuizAttempt = () => {
       <div className="mx-auto max-w-md">
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
           <h1 className="text-xl font-semibold text-gray-800">{quiz.title}</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-600">
             Read the details below before you begin. Once started, the timer cannot be paused.
           </p>
 
           <div className="mt-4 space-y-2">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-sm text-gray-700">
               <Clock size={15} /> Duration: {quiz.duration_minutes} minutes
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-sm text-gray-700">
               <ListChecks size={15} /> Questions: {quiz.questions_per_attempt}
             </div>
           </div>
+
+          <p className="mt-4 text-xs text-amber-600">
+            The quiz will open in fullscreen. Switching tabs, apps, or exiting fullscreen will
+            count as a violation — 3 violations will auto-submit your quiz.
+          </p>
 
           <button
             onClick={handleStartQuiz}
@@ -147,9 +236,14 @@ const QuizAttempt = () => {
       <div className="mb-6 flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
         <div>
           <h1 className="text-lg font-semibold text-gray-800">{quiz.title}</h1>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-600">
             Question {currentIndex + 1} of {questions.length} &middot; Answered {answeredCount}
           </p>
+          {tabWarnings > 0 && (
+            <p className="mt-1 text-xs font-medium text-red-600">
+              ⚠ Violation warnings: {tabWarnings} / 3
+            </p>
+          )}
         </div>
         <QuizTimer
           durationMinutes={quiz.duration_minutes}
@@ -160,9 +254,13 @@ const QuizAttempt = () => {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_260px]">
         <div>
-          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+          <div
+            className="select-none rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+            onCopy={preventCopy}
+            onContextMenu={preventContextMenu}
+          >
             <p className="mb-4 font-medium text-gray-800">
-              <span className="mr-2 text-gray-400">{currentIndex + 1}.</span>
+              <span className="mr-2 text-gray-500">{currentIndex + 1}.</span>
               {currentQuestion.question_text}
             </p>
 

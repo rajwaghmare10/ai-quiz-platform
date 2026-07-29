@@ -29,7 +29,7 @@ const ExcelUploadForm = ({ quizId, onUploaded }) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
-      <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 px-4 py-6 text-sm text-gray-500 hover:border-primary-400 hover:text-primary-600">
+      <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 px-4 py-6 text-sm text-gray-600 hover:border-primary-400 hover:text-primary-600">
         <Upload size={18} />
         {file ? file.name : "Click to select an Excel file (.xlsx, .xls)"}
         <input

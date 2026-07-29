@@ -25,17 +25,17 @@ const ClassMembersModal = ({ isOpen, onClose, classId, teacherName }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Class Members">
       <div className="mb-3">
-        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Teacher</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Teacher</p>
         <p className="mt-1 text-sm font-medium text-gray-800">{teacherName || "—"}</p>
       </div>
 
       <div>
-        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-400">
+        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">
           Students ({students.length})
         </p>
-        {loading && <p className="text-sm text-gray-500">Loading...</p>}
+        {loading && <p className="text-sm text-gray-600">Loading...</p>}
         {!loading && students.length === 0 && (
-          <p className="text-sm text-gray-500">No students have joined yet.</p>
+          <p className="text-sm text-gray-600">No students have joined yet.</p>
         )}
         {!loading && students.length > 0 && (
           <div className="max-h-64 overflow-y-auto rounded-lg border border-gray-100">
@@ -51,7 +51,7 @@ const ClassMembersModal = ({ isOpen, onClose, classId, teacherName }) => {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-800">{student.name}</p>
-                    <p className="text-xs text-gray-500">{student.email}</p>
+                    <p className="text-xs text-gray-600">{student.email}</p>
                   </div>
                 </div>
               );

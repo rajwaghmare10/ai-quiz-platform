@@ -47,7 +47,7 @@ const Navbar = ({ search, onSearchChange, onCreateClick }) => {
         <div className="relative">
           <Search
             size={18}
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
           />
           <input
             type="text"
@@ -62,7 +62,7 @@ const Navbar = ({ search, onSearchChange, onCreateClick }) => {
       <div className="flex items-center gap-3">
         <button
           onClick={onCreateClick}
-          className="flex h-9 w-9 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 hover:text-primary-600"
+          className="flex h-9 w-9 items-center justify-center rounded-full text-gray-600 hover:bg-gray-100 hover:text-primary-600"
           title={user?.role === "teacher" ? "Create class" : "Join class"}
         >
           <Plus size={22} />
@@ -82,7 +82,7 @@ const Navbar = ({ search, onSearchChange, onCreateClick }) => {
                 <p className="truncate text-sm font-medium text-gray-800">
                   {user?.name}
                 </p>
-                <p className="truncate text-xs text-gray-500">{user?.email}</p>
+                <p className="truncate text-xs text-gray-600">{user?.email}</p>
               </div>
               <button
                 onClick={handleEditProfile}

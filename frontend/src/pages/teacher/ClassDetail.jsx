@@ -117,7 +117,7 @@ const ClassDetail = () => {
     }
   };
 
-  if (loading) return <p className="text-gray-500">Loading class...</p>;
+  if (loading) return <p className="text-gray-600">Loading class...</p>;
   if (error) return <p className="text-red-600">{error}</p>;
   if (!classData) return null;
 
@@ -127,7 +127,7 @@ const ClassDetail = () => {
     <div>
       <Link
         to="/teacher/dashboard"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary-600"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-gray-600 hover:text-primary-600"
       >
         <ArrowLeft size={16} /> Back to Dashboard
       </Link>
@@ -165,10 +165,10 @@ const ClassDetail = () => {
           <span className="rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-mono font-medium text-gray-700">
             {classData.class_code}
           </span>
-          <span className="flex items-center gap-1.5 text-sm text-gray-500">
+          <span className="flex items-center gap-1.5 text-sm text-gray-600">
             <Users size={15} /> {classData.total_students} students
           </span>
-          <span className="flex items-center gap-1.5 text-sm text-gray-500">
+          <span className="flex items-center gap-1.5 text-sm text-gray-600">
             <ListChecks size={15} /> {quizzes.length} quizzes
           </span>
         </div>
@@ -184,13 +184,13 @@ const ClassDetail = () => {
               onClick={() => setActiveTab(tab.key)}
               className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-sm font-medium transition ${activeTab === tab.key
                   ? "bg-white text-primary-700 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
+                  : "text-gray-600 hover:text-gray-700"
                 }`}
             >
               <Icon size={15} />
               {tab.label}
               <span
-                className={`ml-1 rounded-full px-1.5 text-xs ${activeTab === tab.key ? "bg-primary-100 text-primary-700" : "bg-gray-200 text-gray-500"
+                className={`ml-1 rounded-full px-1.5 text-xs ${activeTab === tab.key ? "bg-primary-100 text-primary-700" : "bg-gray-200 text-gray-600"
                   }`}
               >
                 {tab.key === "quizzes" ? quizzes.length : students.length}
@@ -212,10 +212,10 @@ const ClassDetail = () => {
             </button>
           </div>
 
-          {quizzesLoading && <p className="text-sm text-gray-500">Loading quizzes...</p>}
+          {quizzesLoading && <p className="text-sm text-gray-600">Loading quizzes...</p>}
           {!quizzesLoading && quizzes.length === 0 && (
             <div className="rounded-xl border border-dashed border-gray-300 py-10 text-center">
-              <p className="text-sm text-gray-500">No quizzes created for this class yet.</p>
+              <p className="text-sm text-gray-600">No quizzes created for this class yet.</p>
             </div>
           )}
           <div className="space-y-3">
@@ -235,10 +235,10 @@ const ClassDetail = () => {
       {/* Students tab */}
       {activeTab === "students" && (
         <div>
-          {studentsLoading && <p className="text-sm text-gray-500">Loading students...</p>}
+          {studentsLoading && <p className="text-sm text-gray-600">Loading students...</p>}
           {!studentsLoading && students.length === 0 && (
             <div className="rounded-xl border border-dashed border-gray-300 py-10 text-center">
-              <p className="text-sm text-gray-500">No students have joined this class yet.</p>
+              <p className="text-sm text-gray-600">No students have joined this class yet.</p>
             </div>
           )}
           {!studentsLoading && students.length > 0 && (

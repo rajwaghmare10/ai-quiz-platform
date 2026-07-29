@@ -106,7 +106,7 @@ const ClassCard = ({ classItem, linkTo, onDeleted, onLeft }) => {
       <div className="flex items-center justify-between rounded-b-xl border-t border-gray-100 px-3 py-2">
         <button
           onClick={handleMembersClick}
-          className="flex items-center gap-1 rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+          className="flex items-center gap-1 rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
           title="View members"
         >
           <Users size={17} />
@@ -115,7 +115,7 @@ const ClassCard = ({ classItem, linkTo, onDeleted, onLeft }) => {
         <div className="relative" ref={menuRef}>
           <button
             onClick={handleMenuClick}
-            className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            className="rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
           >
             <MoreVertical size={17} />
           </button>

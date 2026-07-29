@@ -16,7 +16,7 @@ const QuestionPalette = ({ questions, answers, currentIndex, onJumpTo }) => {
           } else if (isAnswered) {
             classes += "bg-primary-100 text-primary-700 hover:bg-primary-200";
           } else {
-            classes += "bg-gray-100 text-gray-500 hover:bg-gray-200";
+            classes += "bg-gray-100 text-gray-600 hover:bg-gray-200";
           }
 
           return (
@@ -27,7 +27,7 @@ const QuestionPalette = ({ questions, answers, currentIndex, onJumpTo }) => {
         })}
       </div>
 
-      <div className="mt-4 space-y-1.5 border-t border-gray-100 pt-3 text-xs text-gray-500">
+      <div className="mt-4 space-y-1.5 border-t border-gray-100 pt-3 text-xs text-gray-600">
         <div className="flex items-center gap-2">
           <span className="h-3 w-3 rounded bg-primary-100" /> Answered
         </div>

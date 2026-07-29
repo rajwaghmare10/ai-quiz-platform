@@ -45,7 +45,7 @@ const GeneratedQuestionPreview = ({ questions, onChange, onRemove, onSaveAll, sa
               />
               <button
                 onClick={() => onRemove(index)}
-                className="shrink-0 rounded-full p-2 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                className="shrink-0 rounded-full p-2 text-gray-500 hover:bg-red-50 hover:text-red-600"
               >
                 <Trash2 size={15} />
               </button>
@@ -78,7 +78,7 @@ const GeneratedQuestionPreview = ({ questions, onChange, onRemove, onSaveAll, sa
             </div>
 
             <div className="mt-2 flex items-center gap-2">
-              <label className="text-xs text-gray-500">Marks</label>
+              <label className="text-xs text-gray-600">Marks</label>
               <input
                 type="number"
                 value={q.marks}

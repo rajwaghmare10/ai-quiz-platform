@@ -42,7 +42,7 @@ const QuestionCard = ({ question, onUpdated, onDeleted, onDeleteRequest }) => {
 
   const sourceTag = SOURCE_LABELS[question.question_source] || {
     label: question.question_source,
-    color: "bg-gray-100 text-gray-600",
+    color: "bg-gray-100 text-gray-700",
   };
 
   if (isEditing) {
@@ -82,7 +82,7 @@ const QuestionCard = ({ question, onUpdated, onDeleted, onDeleteRequest }) => {
         </div>
 
         <div className="mt-3 flex items-center gap-2">
-          <label className="text-sm text-gray-600">Marks</label>
+          <label className="text-sm text-gray-700">Marks</label>
           <input
             type="number"
             value={marks}
@@ -126,7 +126,7 @@ const QuestionCard = ({ question, onUpdated, onDeleted, onDeleteRequest }) => {
             <div
               key={num}
               className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm ${
-                isCorrect ? "bg-primary-50 text-primary-700" : "text-gray-600"
+                isCorrect ? "bg-primary-50 text-primary-700" : "text-gray-700"
               }`}
             >
               {isCorrect && <Check size={14} />}
@@ -137,17 +137,17 @@ const QuestionCard = ({ question, onUpdated, onDeleted, onDeleteRequest }) => {
       </div>
 
       <div className="mt-3 flex items-center justify-between">
-        <span className="text-xs text-gray-400">Marks: {question.marks}</span>
+        <span className="text-xs text-gray-500">Marks: {question.marks}</span>
         <div className="flex gap-1">
           <button
             onClick={() => setIsEditing(true)}
-            className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-primary-600"
+            className="rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-primary-600"
           >
             <Pencil size={15} />
           </button>
           <button
             onClick={() => onDeleteRequest(question.question_id)}
-            className="rounded-full p-2 text-gray-400 hover:bg-red-50 hover:text-red-600"
+            className="rounded-full p-2 text-gray-500 hover:bg-red-50 hover:text-red-600"
           >
             <Trash2 size={15} />
           </button>

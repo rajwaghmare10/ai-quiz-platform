@@ -7,7 +7,7 @@ import { getClassTheme } from "../../utils/classTheme";
 
 const STATUS_STYLES = {
   Active: "bg-primary-100 text-primary-700",
-  Upcoming: "bg-gray-100 text-gray-600",
+  Upcoming: "bg-gray-100 text-gray-700",
   Ended: "bg-red-100 text-red-600",
 };
 
@@ -58,7 +58,7 @@ const StudentClassDetail = () => {
     return "Active";
   };
 
-  if (loading) return <p className="text-gray-500">Loading class...</p>;
+  if (loading) return <p className="text-gray-600">Loading class...</p>;
   if (error) return <p className="text-red-600">{error}</p>;
   if (!classData) return null;
 
@@ -69,7 +69,7 @@ const StudentClassDetail = () => {
     <div>
       <Link
         to="/student/dashboard"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary-600"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-gray-600 hover:text-primary-600"
       >
         <ArrowLeft size={16} /> Back to Dashboard
       </Link>
@@ -87,10 +87,10 @@ const StudentClassDetail = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 px-6 py-4">
-          <span className="flex items-center gap-1.5 text-sm text-gray-500">
+          <span className="flex items-center gap-1.5 text-sm text-gray-600">
             <User size={15} /> {classData.teacher_name}
           </span>
-          <span className="flex items-center gap-1.5 text-sm text-gray-500">
+          <span className="flex items-center gap-1.5 text-sm text-gray-600">
             <ListChecks size={15} /> {quizzes.length} quizzes
           </span>
           {activeCount > 0 && (
@@ -103,10 +103,10 @@ const StudentClassDetail = () => {
 
       <h2 className="mb-3 text-lg font-semibold text-gray-800">Quizzes</h2>
 
-      {quizzesLoading && <p className="text-sm text-gray-500">Loading quizzes...</p>}
+      {quizzesLoading && <p className="text-sm text-gray-600">Loading quizzes...</p>}
       {!quizzesLoading && quizzes.length === 0 && (
         <div className="rounded-xl border border-dashed border-gray-300 py-10 text-center">
-          <p className="text-sm text-gray-500">No quizzes available in this class yet.</p>
+          <p className="text-sm text-gray-600">No quizzes available in this class yet.</p>
         </div>
       )}
 
@@ -129,7 +129,7 @@ const StudentClassDetail = () => {
                     {status}
                   </span>
                 </div>
-                <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-gray-500">
+                <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-gray-600">
                   <span className="flex items-center gap-1">
                     <Clock size={13} /> {quiz.duration_minutes} min
                   </span>
@@ -137,7 +137,7 @@ const StudentClassDetail = () => {
                     <ListChecks size={13} /> {quiz.questions_per_attempt} of {quiz.total_questions}
                   </span>
                 </div>
-                <p className="mt-1 text-xs text-gray-400">
+                <p className="mt-1 text-xs text-gray-500">
                   {new Date(quiz.start_time).toLocaleString()} &rarr;{" "}
                   {new Date(quiz.end_time).toLocaleString()}
                 </p>
