@@ -17,7 +17,12 @@ const attemptRoutes = require("./routes/attempt.routes");
 
 const aiRoutes = require("./routes/ai.routes");
 
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
@@ -38,6 +43,22 @@ app.get("/health", (req, res) => {
   res.status(200).json({
     success: true,
     message: "Server is running",
+  });
+});
+
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
+  });
+});
+
+app.use((err, req, res, next) => {
+  console.error(err);
+
+  res.status(500).json({
+    success: false,
+    message: "Internal Server Error",
   });
 });
 
