@@ -4,371 +4,9 @@ import toast from "react-hot-toast";
 import { useNavigate, Link } from "react-router-dom";
 import authService from "../../api/authService";
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
-const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
-  .otp-register-page {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-    font-family: 'Inter', sans-serif;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .otp-register-page::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse at 20% 50%, rgba(99,102,241,0.3) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 20%, rgba(139,92,246,0.3) 0%, transparent 60%);
-    pointer-events: none;
-  }
-
-  .otp-card {
-    width: 100%;
-    max-width: 420px;
-    position: relative;
-    z-index: 1;
-  }
-
-  .otp-logo {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 28px;
-  }
-
-  .otp-logo-icon {
-    width: 56px;
-    height: 56px;
-    background: rgba(255,255,255,0.2);
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(255,255,255,0.35);
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 26px;
-    font-weight: 800;
-    color: #fff;
-    margin-bottom: 10px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-  }
-
-  .otp-logo-name {
-    color: #fff;
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    margin: 0;
-  }
-
-  .otp-panel {
-    background: rgba(255,255,255,0.97);
-    backdrop-filter: blur(20px);
-    border-radius: 24px;
-    padding: 36px 36px 32px;
-    box-shadow: 0 32px 80px rgba(0,0,0,0.22), 0 0 0 1px rgba(255,255,255,0.5);
-  }
-
-  .otp-panel-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #111827;
-    margin: 0 0 6px;
-    letter-spacing: -0.3px;
-  }
-
-  .otp-panel-subtitle {
-    font-size: 13.5px;
-    color: #6b7280;
-    margin: 0 0 28px;
-    line-height: 1.5;
-  }
-
-  .otp-field {
-    margin-bottom: 18px;
-  }
-
-  .otp-label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 6px;
-  }
-
-  .otp-input {
-    width: 100%;
-    border: 1.5px solid #e5e7eb;
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: 14px;
-    font-family: 'Inter', sans-serif;
-    color: #111827;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    background: #fff;
-    box-sizing: border-box;
-  }
-
-  .otp-input:focus {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
-  }
-
-  .otp-input.error {
-    border-color: #ef4444;
-    box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
-  }
-
-  .otp-select {
-    width: 100%;
-    border: 1.5px solid #e5e7eb;
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: 14px;
-    font-family: 'Inter', sans-serif;
-    color: #111827;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    background: #fff;
-    box-sizing: border-box;
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 18px;
-    padding-right: 38px;
-  }
-
-  .otp-select:focus {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
-  }
-
-  .otp-error-text {
-    font-size: 12px;
-    color: #ef4444;
-    margin-top: 4px;
-    font-weight: 500;
-  }
-
-  .otp-btn {
-    width: 100%;
-    padding: 12px;
-    border-radius: 12px;
-    font-size: 15px;
-    font-weight: 600;
-    font-family: 'Inter', sans-serif;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    box-shadow: 0 4px 16px rgba(99,102,241,0.35);
-    transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
-    letter-spacing: 0.1px;
-    margin-top: 6px;
-  }
-
-  .otp-btn:hover:not(:disabled) {
-    opacity: 0.92;
-    transform: translateY(-1px);
-    box-shadow: 0 8px 24px rgba(99,102,241,0.4);
-  }
-
-  .otp-btn:active:not(:disabled) {
-    transform: translateY(0);
-  }
-
-  .otp-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  /* ── OTP Digit Boxes ── */
-  .otp-digit-group {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin: 8px 0 20px;
-  }
-
-  .otp-digit-box {
-    width: 52px;
-    height: 60px;
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
-    font-size: 24px;
-    font-weight: 700;
-    font-family: 'Inter', sans-serif;
-    color: #4338ca;
-    text-align: center;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-    background: #fafafa;
-    caret-color: #6366f1;
-  }
-
-  .otp-digit-box:focus {
-    border-color: #6366f1;
-    background: #fff;
-    box-shadow: 0 0 0 4px rgba(99,102,241,0.12);
-  }
-
-  .otp-digit-box.filled {
-    border-color: #6366f1;
-    background: #f0f0ff;
-  }
-
-  .otp-digit-box.otp-error {
-    border-color: #ef4444;
-    background: #fff5f5;
-    box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
-  }
-
-  /* ── Email badge ── */
-  .otp-email-badge {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #f0f0ff;
-    border: 1px solid #c7d2fe;
-    border-radius: 10px;
-    padding: 10px 14px;
-    margin-bottom: 24px;
-    font-size: 13.5px;
-    color: #4338ca;
-    font-weight: 500;
-  }
-
-  .otp-email-badge svg {
-    flex-shrink: 0;
-    color: #6366f1;
-  }
-
-  /* ── Resend ── */
-  .otp-resend-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    margin-top: 18px;
-    font-size: 13px;
-    color: #6b7280;
-  }
-
-  .otp-resend-btn {
-    background: none;
-    border: none;
-    font-size: 13px;
-    font-weight: 600;
-    font-family: 'Inter', sans-serif;
-    color: #6366f1;
-    cursor: pointer;
-    padding: 0;
-    transition: opacity 0.2s;
-  }
-
-  .otp-resend-btn:disabled {
-    color: #9ca3af;
-    cursor: default;
-  }
-
-  .otp-resend-btn:hover:not(:disabled) {
-    text-decoration: underline;
-  }
-
-  .otp-change-email {
-    background: none;
-    border: none;
-    font-size: 13px;
-    font-weight: 500;
-    font-family: 'Inter', sans-serif;
-    color: #6b7280;
-    cursor: pointer;
-    padding: 0;
-    margin-top: 10px;
-    display: block;
-    width: 100%;
-    text-align: center;
-    transition: color 0.2s;
-  }
-
-  .otp-change-email:hover {
-    color: #374151;
-  }
-
-  /* ── Step indicator ── */
-  .otp-steps {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    justify-content: center;
-    margin-bottom: 24px;
-  }
-
-  .otp-step-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #e5e7eb;
-    transition: all 0.3s;
-  }
-
-  .otp-step-dot.active {
-    background: #6366f1;
-    width: 24px;
-    border-radius: 4px;
-  }
-
-  .otp-step-dot.done {
-    background: #a5b4fc;
-  }
-
-  /* ── Login link ── */
-  .otp-login-link {
-    text-align: center;
-    font-size: 13.5px;
-    color: #6b7280;
-    margin-top: 22px;
-  }
-
-  .otp-login-link a {
-    color: #6366f1;
-    font-weight: 600;
-    text-decoration: none;
-  }
-
-  .otp-login-link a:hover {
-    text-decoration: underline;
-  }
-
-  /* ── Spinner ── */
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .otp-spinner {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255,255,255,0.4);
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    margin-right: 8px;
-    vertical-align: middle;
-  }
-`;
-
-// ─── OTP Digit Input Component ────────────────────────────────────────────────
+// ─── OTP Digit Input ──────────────────────────────────────────────────────────
 const OtpDigitInput = ({ length = 6, value, onChange, hasError }) => {
   const inputRefs = useRef([]);
-
   const digits = value.split("").concat(Array(length).fill("")).slice(0, length);
 
   const handleKeyDown = (e, index) => {
@@ -393,34 +31,27 @@ const OtpDigitInput = ({ length = 6, value, onChange, hasError }) => {
   const handleChange = (e, index) => {
     const raw = e.target.value.replace(/\D/g, "");
     if (!raw) return;
-
-    // Handle paste of full OTP
     if (raw.length > 1) {
       const pasted = raw.slice(0, length);
       onChange(pasted.padEnd(length, "").slice(0, length));
-      const focusIdx = Math.min(pasted.length, length - 1);
-      inputRefs.current[focusIdx]?.focus();
+      inputRefs.current[Math.min(pasted.length, length - 1)]?.focus();
       return;
     }
-
     const newDigits = [...digits];
     newDigits[index] = raw;
     onChange(newDigits.join(""));
-    if (index < length - 1) {
-      inputRefs.current[index + 1]?.focus();
-    }
+    if (index < length - 1) inputRefs.current[index + 1]?.focus();
   };
 
   const handlePaste = (e) => {
     e.preventDefault();
     const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, length);
-    onChange(pasted.padEnd(length, "").slice(0, length).trimEnd());
-    const focusIdx = Math.min(pasted.length, length - 1);
-    inputRefs.current[focusIdx]?.focus();
+    onChange(pasted);
+    inputRefs.current[Math.min(pasted.length, length - 1)]?.focus();
   };
 
   return (
-    <div className="otp-digit-group">
+    <div className="flex gap-2 justify-center my-3">
       {digits.map((digit, i) => (
         <input
           key={i}
@@ -433,27 +64,31 @@ const OtpDigitInput = ({ length = 6, value, onChange, hasError }) => {
           onKeyDown={(e) => handleKeyDown(e, i)}
           onPaste={handlePaste}
           onFocus={(e) => e.target.select()}
-          className={`otp-digit-box${digit ? " filled" : ""}${hasError ? " otp-error" : ""}`}
-          aria-label={`OTP digit ${i + 1}`}
           autoComplete="one-time-code"
+          aria-label={`OTP digit ${i + 1}`}
+          className={`w-10 h-12 text-center text-lg font-bold rounded-lg border outline-none transition
+            ${hasError
+              ? "border-red-400 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-100"
+              : digit
+                ? "border-primary-500 bg-primary-50 focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                : "border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+            }`}
         />
       ))}
     </div>
   );
 };
 
-// ─── Main RegisterPage ────────────────────────────────────────────────────────
+// ─── RegisterPage ─────────────────────────────────────────────────────────────
 const RegisterPage = () => {
   const navigate = useNavigate();
 
   // step: "form" | "otp"
   const [step, setStep] = useState("form");
-  const [pendingData, setPendingData] = useState(null); // { name, email, password, role }
+  const [pendingData, setPendingData] = useState(null);
   const [otpValue, setOtpValue] = useState("");
   const [otpError, setOtpError] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
-
-  // Resend cooldown
   const [resendCountdown, setResendCountdown] = useState(0);
   const timerRef = useRef(null);
 
@@ -461,10 +96,7 @@ const RegisterPage = () => {
     setResendCountdown(seconds);
     timerRef.current = setInterval(() => {
       setResendCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current);
-          return 0;
-        }
+        if (prev <= 1) { clearInterval(timerRef.current); return 0; }
         return prev - 1;
       });
     }, 1000);
@@ -475,11 +107,17 @@ const RegisterPage = () => {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm();
 
-  // ── Step 1: Send OTP ──────────────────────────────────────────────────────
-  const onFormSubmit = async (formData) => {
+  const inputClass =
+    "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100";
+  const labelClass = "mb-1 block text-sm font-medium text-gray-700";
+  const errorClass = "mt-1 text-xs text-red-600";
+
+  // ── Step 1: Send OTP ────────────────────────────────────────────────────────
+  const onSubmit = async (formData) => {
     try {
       const { name, email, password, role } = formData;
       await authService.sendOtp({ name, email, password, role });
@@ -496,7 +134,7 @@ const RegisterPage = () => {
     }
   };
 
-  // ── Step 2: Verify OTP ────────────────────────────────────────────────────
+  // ── Step 2: Verify OTP ──────────────────────────────────────────────────────
   const handleVerifyOtp = async () => {
     if (otpValue.replace(/\s/g, "").length < 6) {
       setOtpError("Please enter the complete 6-digit OTP.");
@@ -518,7 +156,7 @@ const RegisterPage = () => {
     }
   };
 
-  // ── Resend OTP ────────────────────────────────────────────────────────────
+  // ── Resend OTP ──────────────────────────────────────────────────────────────
   const handleResend = async () => {
     if (resendCountdown > 0) return;
     try {
@@ -527,185 +165,165 @@ const RegisterPage = () => {
       setOtpError("");
       startCooldown(60);
       toast.success("New OTP sent!");
-    } catch (error) {
+    } catch {
       toast.error("Failed to resend OTP. Please try again.");
     }
   };
 
   return (
-    <>
-      <style>{styles}</style>
-      <div className="otp-register-page">
-        <div className="otp-card">
-          {/* Logo */}
-          <div className="otp-logo">
-            <div className="otp-logo-icon">Q</div>
-            <h1 className="otp-logo-name">QuizAI</h1>
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-10">
+      <div className="w-full max-w-sm">
+
+        {/* Logo — identical to original */}
+        <div className="mb-6 flex flex-col items-center">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-600 text-2xl font-bold text-white">
+            Q
           </div>
+          <h1 className="text-xl font-semibold text-gray-800">QuizAI</h1>
+        </div>
 
-          <div className="otp-panel">
-            {/* Step indicator */}
-            <div className="otp-steps">
-              <div className={`otp-step-dot ${step === "form" ? "active" : "done"}`} />
-              <div className={`otp-step-dot ${step === "otp" ? "active" : ""}`} />
-            </div>
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
 
-            {/* ── STEP 1: Registration Form ─────────────────────────────── */}
-            {step === "form" && (
-              <>
-                <h2 className="otp-panel-title">Create your account</h2>
-                <p className="otp-panel-subtitle">
-                  Fill in your details — we'll verify your email with a one-time code.
-                </p>
+          {/* ── STEP 1: Registration form (original UI) ── */}
+          {step === "form" && (
+            <>
+              <h2 className="mb-5 text-lg font-semibold text-gray-800">
+                Create your account
+              </h2>
 
-                <form onSubmit={handleSubmit(onFormSubmit)} noValidate>
-                  <div className="otp-field">
-                    <label className="otp-label">Full Name</label>
-                    <input
-                      id="reg-name"
-                      type="text"
-                      {...register("name", { required: "Name is required" })}
-                      className={`otp-input${errors.name ? " error" : ""}`}
-                      placeholder="Jane Smith"
-                    />
-                    {errors.name && <p className="otp-error-text">{errors.name.message}</p>}
-                  </div>
-
-                  <div className="otp-field">
-                    <label className="otp-label">Email Address</label>
-                    <input
-                      id="reg-email"
-                      type="email"
-                      {...register("email", {
-                        required: "Email is required",
-                        pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Enter a valid email" },
-                      })}
-                      className={`otp-input${errors.email ? " error" : ""}`}
-                      placeholder="jane@example.com"
-                    />
-                    {errors.email && <p className="otp-error-text">{errors.email.message}</p>}
-                  </div>
-
-                  <div className="otp-field">
-                    <label className="otp-label">Password</label>
-                    <input
-                      id="reg-password"
-                      type="password"
-                      {...register("password", {
-                        required: "Password is required",
-                        minLength: { value: 6, message: "Minimum 6 characters" },
-                      })}
-                      className={`otp-input${errors.password ? " error" : ""}`}
-                      placeholder="At least 6 characters"
-                    />
-                    {errors.password && <p className="otp-error-text">{errors.password.message}</p>}
-                  </div>
-
-                  <div className="otp-field">
-                    <label className="otp-label">I am a</label>
-                    <select
-                      id="reg-role"
-                      {...register("role", { required: "Please select a role" })}
-                      className={`otp-select${errors.role ? " error" : ""}`}
-                    >
-                      <option value="">Select role…</option>
-                      <option value="teacher">Teacher</option>
-                      <option value="student">Student</option>
-                    </select>
-                    {errors.role && <p className="otp-error-text">{errors.role.message}</p>}
-                  </div>
-
-                  <button
-                    id="reg-submit-btn"
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="otp-btn"
-                  >
-                    {isSubmitting ? (
-                      <><span className="otp-spinner" />Sending OTP…</>
-                    ) : (
-                      "Continue →"
-                    )}
-                  </button>
-                </form>
-              </>
-            )}
-
-            {/* ── STEP 2: OTP Verification ──────────────────────────────── */}
-            {step === "otp" && (
-              <>
-                <h2 className="otp-panel-title">Verify your email</h2>
-                <p className="otp-panel-subtitle">
-                  We sent a 6-digit code to:
-                </p>
-
-                <div className="otp-email-badge">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="2" y="4" width="20" height="16" rx="2" />
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                  </svg>
-                  {pendingData?.email}
+              <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+                <div>
+                  <label className={labelClass}>Full Name</label>
+                  <input
+                    type="text"
+                    {...register("name", { required: "Name is required" })}
+                    className={inputClass}
+                  />
+                  {errors.name && <p className={errorClass}>{errors.name.message}</p>}
                 </div>
 
-                <label className="otp-label" style={{ textAlign: "center", display: "block" }}>
-                  Enter verification code
-                </label>
+                <div>
+                  <label className={labelClass}>Email</label>
+                  <input
+                    type="email"
+                    {...register("email", { required: "Email is required" })}
+                    className={inputClass}
+                  />
+                  {errors.email && <p className={errorClass}>{errors.email.message}</p>}
+                </div>
 
-                <OtpDigitInput
-                  length={6}
-                  value={otpValue}
-                  onChange={(val) => { setOtpValue(val); setOtpError(""); }}
-                  hasError={!!otpError}
-                />
+                <div>
+                  <label className={labelClass}>Password</label>
+                  <input
+                    type="password"
+                    {...register("password", {
+                      required: "Password is required",
+                      minLength: { value: 6, message: "Password must be at least 6 characters" },
+                    })}
+                    className={inputClass}
+                  />
+                  {errors.password && <p className={errorClass}>{errors.password.message}</p>}
+                </div>
 
-                {otpError && (
-                  <p className="otp-error-text" style={{ textAlign: "center", marginBottom: "12px", marginTop: "-12px" }}>
-                    {otpError}
-                  </p>
-                )}
+                <div>
+                  <label className={labelClass}>Confirm Password</label>
+                  <input
+                    type="password"
+                    {...register("confirmPassword", {
+                      required: "Please confirm your password",
+                      validate: (value) =>
+                        value === watch("password") || "Passwords do not match",
+                    })}
+                    className={inputClass}
+                  />
+                  {errors.confirmPassword && (
+                    <p className={errorClass}>{errors.confirmPassword.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className={labelClass}>I am a</label>
+                  <select
+                    {...register("role", { required: "Please select a role" })}
+                    className={inputClass}
+                  >
+                    <option value="">Select role</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="student">Student</option>
+                  </select>
+                  {errors.role && <p className={errorClass}>{errors.role.message}</p>}
+                </div>
 
                 <button
-                  id="otp-verify-btn"
-                  className="otp-btn"
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full rounded-lg bg-primary-600 py-2.5 text-sm font-medium text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isSubmitting ? "Sending OTP..." : "Register"}
+                </button>
+              </form>
+            </>
+          )}
+
+          {/* ── STEP 2: OTP verification (same card style) ── */}
+          {step === "otp" && (
+            <>
+              <h2 className="mb-1 text-lg font-semibold text-gray-800">
+                Verify your email
+              </h2>
+              <p className="mb-4 text-sm text-gray-500">
+                We sent a 6-digit code to{" "}
+                <span className="font-medium text-gray-700">{pendingData?.email}</span>
+              </p>
+
+              <div className="space-y-4">
+                <div>
+                  <label className={labelClass}>Enter OTP</label>
+                  <OtpDigitInput
+                    length={6}
+                    value={otpValue}
+                    onChange={(val) => { setOtpValue(val); setOtpError(""); }}
+                    hasError={!!otpError}
+                  />
+                  {otpError && <p className={errorClass + " text-center"}>{otpError}</p>}
+                </div>
+
+                <button
                   onClick={handleVerifyOtp}
                   disabled={isVerifying}
+                  className="w-full rounded-lg bg-primary-600 py-2.5 text-sm font-medium text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {isVerifying ? (
-                    <><span className="otp-spinner" />Verifying…</>
-                  ) : (
-                    "Verify & Create Account"
-                  )}
+                  {isVerifying ? "Verifying..." : "Verify & Create Account"}
                 </button>
 
-                <div className="otp-resend-row">
-                  <span>Didn't receive it?</span>
+                <div className="flex items-center justify-between text-xs text-gray-500 pt-1">
                   <button
-                    id="otp-resend-btn"
-                    className="otp-resend-btn"
+                    onClick={() => { setStep("form"); setOtpValue(""); setOtpError(""); }}
+                    className="text-gray-500 hover:text-gray-700 transition"
+                  >
+                    ← Change details
+                  </button>
+                  <button
                     onClick={handleResend}
                     disabled={resendCountdown > 0}
+                    className="font-medium text-primary-600 hover:underline disabled:text-gray-400 disabled:no-underline transition"
                   >
                     {resendCountdown > 0 ? `Resend in ${resendCountdown}s` : "Resend OTP"}
                   </button>
                 </div>
-
-                <button
-                  className="otp-change-email"
-                  onClick={() => { setStep("form"); setOtpValue(""); setOtpError(""); }}
-                >
-                  ← Change details
-                </button>
-              </>
-            )}
-          </div>
-
-          <p className="otp-login-link">
-            Already have an account?{" "}
-            <Link to="/login">Log in</Link>
-          </p>
+              </div>
+            </>
+          )}
         </div>
+
+        <p className="mt-5 text-center text-sm text-gray-700">
+          Already have an account?{" "}
+          <Link to="/login" className="font-medium text-primary-600 hover:underline">
+            Login
+          </Link>
+        </p>
       </div>
-    </>
+    </div>
   );
 };
 
