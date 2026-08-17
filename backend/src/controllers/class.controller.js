@@ -65,8 +65,7 @@ const joinClass =
 async (req, res) => {
 
     try {
-        console.log("BODY:", req.body);
-        console.log("USER:", req.user);
+        
         const result =
             await classService.joinClass(
                 req.body.classCode,

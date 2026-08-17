@@ -7,12 +7,10 @@
     const [error, setError] = useState(null);
 
     const fetchClasses = useCallback(async () => {
-        console.log("fetchClasses called");
         setLoading(true);
         setError(null);
         try {
         const data = await classService.getMyClasses();
-        console.log(data);
         setClasses(data);
         } catch (err) {
         setError(err?.response?.data?.message || "Failed to load classes");
@@ -22,7 +20,6 @@
     }, []);
 
     const addClass = async (classData) => {
-        console.log("useClasses hook running");
         const newClass = await classService.createClass(classData);
         setClasses((prev) => [...prev, newClass]);
         return newClass;

@@ -1,18 +1,27 @@
-const bcrypt = require("bcrypt");
-const authRepository = require("../repositories/auth.repository");
+// services/auth.service.js
 
-const registerUser = async ({
-  name,
-  email,
-  password,
-  role
-}) => {
+const bcrypt = require("bcrypt");
+const crypto = require("crypto");
+const authRepository = require("../repositories/auth.repository");
+const { generateToken } = require("../utils/jwt");
+const { sendOtpEmail } = require("../utils/email");
+const { setOtp, getOtp, deleteOtp } = require("../utils/otpStore");
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const generateOtp = () =>
+  crypto.randomInt(100000, 999999).toString();
+
+// ─── Step 1: Validate → store pending data → send OTP ─────────────────────
+
+const sendRegistrationOtp = async ({ name, email, password, role }) => {
 
   if (!name || !name.trim()) {
     throw new Error("Name is required");
   }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!email || !emailRegex.test(email)) {
     throw new Error("A valid email is required");
   }
@@ -25,48 +34,60 @@ const registerUser = async ({
     throw new Error("Role must be either teacher or student");
   }
 
-  const existingUser =
-    await authRepository.findUserByEmail(email);
-
+  const existingUser = await authRepository.findUserByEmail(email);
   if (existingUser) {
     throw new Error("Email already registered");
   }
 
-  const passwordHash =
-    await bcrypt.hash(password, 10);
+  const passwordHash = await bcrypt.hash(password, 10);
+  const otp = generateOtp();
 
-  const user =
-    await authRepository.createUser({
-      name,
-      email,
-      passwordHash,
-      role
-    });
+  // Store OTP + pending user data (not yet in DB)
+  setOtp(email, otp, { name: name.trim(), email, passwordHash, role });
+
+  await sendOtpEmail(email, otp, name.trim());
+
+  return { message: "OTP sent to your email. Please verify to complete registration." };
+};
+
+// ─── Step 2: Verify OTP → create user ─────────────────────────────────────
+
+const verifyOtpAndRegister = async ({ email, otp }) => {
+
+  if (!email || !otp) {
+    throw new Error("Email and OTP are required");
+  }
+
+  const entry = getOtp(email);
+
+  if (!entry) {
+    throw new Error("OTP has expired or was not found. Please register again.");
+  }
+
+  if (entry.otp !== otp.trim()) {
+    throw new Error("Invalid OTP. Please check and try again.");
+  }
+
+  // OTP is valid — create the user
+  const user = await authRepository.createUser(entry.userData);
+
+  // Clean up the OTP store
+  deleteOtp(email);
 
   return user;
 };
 
+// ─── Login ─────────────────────────────────────────────────────────────────
 
-const { generateToken } =
-  require("../utils/jwt");
+const loginUser = async ({ email, password }) => {
 
-const loginUser = async ({
-  email,
-  password,
-}) => {
-
-  const user =
-    await authRepository.findUserByEmail(email);
+  const user = await authRepository.findUserByEmail(email);
 
   if (!user) {
     throw new Error("Invalid email or password");
   }
 
-  const isMatch =
-    await bcrypt.compare(
-      password,
-      user.password_hash
-    );
+  const isMatch = await bcrypt.compare(password, user.password_hash);
 
   if (!isMatch) {
     throw new Error("Invalid email or password");
@@ -89,6 +110,7 @@ const loginUser = async ({
 };
 
 module.exports = {
-  registerUser,
+  sendRegistrationOtp,
+  verifyOtpAndRegister,
   loginUser,
 };
